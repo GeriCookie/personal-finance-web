@@ -13,7 +13,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
-        self.rowser.get('http://localhost:8000')
+        self.browser.get('http://localhost:8000')
 
         # She notices the page title and header mentioned personal finance
         self.assertIn('Personal Finance', self.browser.title)
