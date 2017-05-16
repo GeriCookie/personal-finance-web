@@ -1,4 +1,5 @@
 from selenium import webdriver
+import time
 import unittest
 
 
@@ -28,8 +29,8 @@ class NewVisitorTest(unittest.TestCase):
                 )
         income_amountbox = self.browser.find_element_by_id('id_new_income_amount')
         self.assertEqual(
-                income_amountbox.getAttribute('value'),
-                0
+                income_amountbox.get_attribute('value'),
+                "0"
                 )
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
@@ -39,11 +40,13 @@ class NewVisitorTest(unittest.TestCase):
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
+        time.sleep(1)
         # "Salary: 1000" and "Account Balance: 1000"
         income_table = self.browser.find_element_by_id('id_income_table')
         rows = income_table.find_elements_by_tag_name('tr')
         self.assertTrue(
-                any(row.text == 'Salary: 1000' for row in rows)
+                any(row.text == 'Salary: 1000' for row in rows),
+                "New income did not appear in table"
                 )
         account_balance = self.browser.find_element_by_id('id_account_balance')
         self.assertEqual(
@@ -61,8 +64,8 @@ class NewVisitorTest(unittest.TestCase):
 
         expenses_amountbox = self.browser.find_element_by_id('id_new_income_amount')
         self.assertEqual(
-                expenses_amountbox.getAttribute('value'),
-                0
+                expenses_amountbox.get_attribute('value'),
+                "0"
                 )
 
         # When she hits the "Add expense" button, the page updates
@@ -71,6 +74,7 @@ class NewVisitorTest(unittest.TestCase):
         expenses_amountbox.send_keys(10)
         expenses_button = self.browser.find_element_by_id('id_new_expense_button')
         expenses_button.click()
+        time.sleep(1)
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
         expense_table = self.browser.find_element_by_id('id_expense_table')
         rows = expense_table.find_elements_by_tag_name('tr')
