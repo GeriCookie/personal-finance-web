@@ -11,6 +11,11 @@ class NewVisitorTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
+    def check_for_row_in_table(self, table_id, row_text):
+        table = self.browser.find_element_by_id(table_id)
+        rows = table.find_element_by_tag_name('tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
@@ -42,9 +47,7 @@ class NewVisitorTest(unittest.TestCase):
         income_button.click()
         time.sleep(1)
         # "Salary: 1000" and "Account Balance: 1000"
-        income_table = self.browser.find_element_by_id('id_income_table')
-        rows = income_table.find_elements_by_tag_name('tr')
-        self.assertIn('Salary: 1000', [row.text for row in rows])
+        self.check_for_row_in_table('id_income_table', 'Salary: 1000')
 
         # She is invited to enter her expenses amount and category
         # She types "Food" and 10
@@ -69,8 +72,7 @@ class NewVisitorTest(unittest.TestCase):
         time.sleep(1)
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
         expense_table = self.browser.find_element_by_id('id_expense_table')
-        rows = expense_table.find_elements_by_tag_name('tr')
-        self.assertIn('Food: 10', [row.text for row in rows])
+        self.check_for_row_in_table('id_expense_table', 'Food: 10')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
@@ -91,10 +93,8 @@ class NewVisitorTest(unittest.TestCase):
         # The page updates again, and now shows both expenses,
         # Total expenses: 30, and Account balance: 970
 
-        expense_table = self.browser.find_element_by_id('id_expense_table')
-        rows = expense_table.find_elements_by_tag_name('tr')
-        self.assertIn('Food: 10', [row.text for row in rows])
-        self.assertIn('Movie: 20', [row.text for row in rows])
+        self.check_for_row_in_table('id_expense_table', 'Food: 10')
+        self.check_for_row_in_table('id_expense_table', 'Movie: 20')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
