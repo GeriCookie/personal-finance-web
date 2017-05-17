@@ -4,18 +4,27 @@
     </head>
     <body>
         <h1> Your Personal Finance List</h1>
-        <input id="id_new_income_category" placeholder="Enter income category" />
-        <input id="id_new_income_amount" type=number value=0 />
-        <input id="id_new_income_button" type="submit">
+        <form method="POST">
+            <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
+            <input name="income_amount" id="id_new_income_amount" type=number placeholder="amount" />
+            <input id="id_new_income_button" type="submit">
+            {% csrf_token %}
+        </form>
         <table id="id_income_table">
+            <tr><td>{{ new_income_category }}: {{ new_income_amount }}</td></tr>
         </table>
         <h1>Total income: <span id="id_total_income"></span></h1>
-        <input id="id_new_expense_category" placeholder="Enter a expense category"/>
-        <input id="id_new_expense_amount" type=number value=0 />
-        <input id="id_new_expense_button" type="submit">
+        <form method="POST">
+            <input name="expense_category" id="id_new_expense_category" placeholder="Enter a expense category"/>
+            <input name="expense_amount" id="id_new_expense_amount" type=number
+            placeholder="amount" />
+            <input id="id_new_expense_button" type="submit">
+            {% csrf_token %}
+        </form>
         <table id="id_expense_table">
+            <tr><td>{{ new_expense_category }}: {{ new_expense_amount }}</td></tr>
         </table>
-        <h1>Total expenses: <span id="id_total_expenses"></span></h1>
-        <h1>Account balance: <span id="id_account_balance"></span></h1>
+        <h1>Total expenses: <span id="id_total_expenses">{{ total_expenses }} </span></h1>
+        <h1>Account balance: <span id="id_account_balance">{{ account_balance }}</span></h1>
     </body>
 </html>

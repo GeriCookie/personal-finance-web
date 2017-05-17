@@ -29,8 +29,8 @@ class NewVisitorTest(unittest.TestCase):
                 )
         income_amountbox = self.browser.find_element_by_id('id_new_income_amount')
         self.assertEqual(
-                income_amountbox.get_attribute('value'),
-                "0"
+                income_amountbox.get_attribute('placeholder'),
+                "amount"
                 )
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
@@ -44,15 +44,7 @@ class NewVisitorTest(unittest.TestCase):
         # "Salary: 1000" and "Account Balance: 1000"
         income_table = self.browser.find_element_by_id('id_income_table')
         rows = income_table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-                any(row.text == 'Salary: 1000' for row in rows),
-                "New income did not appear in table"
-                )
-        account_balance = self.browser.find_element_by_id('id_account_balance')
-        self.assertEqual(
-                account_balance.text,
-                "1000"
-                )
+        self.assertIn('Salary: 1000', [row.text for row in rows])
 
         # She is invited to enter her expenses amount and category
         # She types "Food" and 10
@@ -62,10 +54,10 @@ class NewVisitorTest(unittest.TestCase):
                 'Enter a expense category'
                 )
 
-        expenses_amountbox = self.browser.find_element_by_id('id_new_income_amount')
+        expenses_amountbox = self.browser.find_element_by_id('id_new_expense_amount')
         self.assertEqual(
-                expenses_amountbox.get_attribute('value'),
-                "0"
+                expenses_amountbox.get_attribute('placeholder'),
+                "amount"
                 )
 
         # When she hits the "Add expense" button, the page updates
@@ -78,26 +70,42 @@ class NewVisitorTest(unittest.TestCase):
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
         expense_table = self.browser.find_element_by_id('id_expense_table')
         rows = expense_table.find_elements_by_tag_name('tr')
-        self.assertTrue(
-                any(row.text == 'Food: 10' for row in rows)
-                )
+        self.assertIn('Food: 10', [row.text for row in rows])
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "10"
                 )
-        account_balance = self.browser.find_element_by_id('id_account_balance')
-        self.assertEqual(
-                account_balance.text,
-                "990"
-                )
 
         # There is still a text box inviting her to add another expense.
         # She enters "Movie" and 20
 
+        expenses_inputbox = self.browser.find_element_by_id('id_new_expense_category')
+
+        expenses_amountbox = self.browser.find_element_by_id('id_new_expense_amount')
+        expenses_inputbox.send_keys("Movie")
+        expenses_amountbox.send_keys(20)
+        expenses_button = self.browser.find_element_by_id('id_new_expense_button')
+        expenses_button.click()
+        time.sleep(1)
         # The page updates again, and now shows both expenses,
         # Total expenses: 30, and Account balance: 970
 
+        expense_table = self.browser.find_element_by_id('id_expense_table')
+        rows = expense_table.find_elements_by_tag_name('tr')
+        self.assertIn('Food: 10', [row.text for row in rows])
+        self.assertIn('Movie: 20', [row.text for row in rows])
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "30"
+                )
+
+        account_balance = self.browser.find_element_by_id('id_account_balance')
+        self.assertEqual(
+                account_balance.text,
+                "970"
+                )
         # Cookie wonderss whether the site will remember her list.
         # Then she sees that the site has generated a unique URL for her --
         # there is some explanatory text
