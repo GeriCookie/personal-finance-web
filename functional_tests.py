@@ -13,7 +13,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def check_for_row_in_table(self, table_id, row_text):
         table = self.browser.find_element_by_id(table_id)
-        rows = table.find_element_by_tag_name('tr')
+        rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
@@ -71,7 +71,6 @@ class NewVisitorTest(unittest.TestCase):
         expenses_button.click()
         time.sleep(1)
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
-        expense_table = self.browser.find_element_by_id('id_expense_table')
         self.check_for_row_in_table('id_expense_table', 'Food: 10')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
