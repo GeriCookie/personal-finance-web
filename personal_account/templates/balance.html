@@ -3,7 +3,7 @@
         <title>Personal Finance</title>
     </head>
     <body>
-        <h1>Start Your Personal Finance Balance</h1>
+        <h1> Your Personal Finance List</h1>
         <form method="POST" action="/">
             <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
             <input name="income_amount" id="id_new_income_amount" type=number
@@ -11,6 +11,12 @@
             <input id="id_new_income_button" type="submit">
             {% csrf_token %}
         </form>
+        <table id="id_income_table">
+            {% for income in incomes %}
+            <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
+            {% endfor %}
+        </table>
+        <h1>Total income: <span id="id_total_income"></span></h1>
         <form method="POST" action="/">
             <input name="expense_category" id="id_new_expense_category" placeholder="Enter a expense category"/>
             <input name="expense_amount" id="id_new_expense_amount" type=number
@@ -18,5 +24,12 @@
             <input id="id_new_expense_button" type="submit">
             {% csrf_token %}
         </form>
+        <table id="id_expense_table">
+            {% for expense in expenses %}
+            <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
+            {% endfor %}
+        </table>
+        <h1>Total expenses: <span id="id_total_expenses">{{ total_expenses }} </span></h1>
+        <h1>Account balance: <span id="id_account_balance">{{ account_balance }}</span></h1>
     </body>
 </html>

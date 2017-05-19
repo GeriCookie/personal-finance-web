@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from personal_account.models import Income, Expense
 
@@ -14,16 +13,21 @@ def home_page(request):
                     category=new_income_category,
                     amount=new_income_amount
             )
+
         if new_expense_category and new_expense_amount:
             Expense.objects.create(
                     category=new_expense_category,
                     amount=new_expense_amount
             )
-        return redirect('/')
-    
+        return redirect('/personal_account/the-only-balance-in-the-world/')
+
+    return render(request, 'home.html')
+
+
+def view_balance(request):
     incomes = Income.objects.all()
     expenses = Expense.objects.all()
-    return render(request, 'home.html', {
+    return render(request, 'balance.html', {
         'incomes': incomes,
         'expenses': expenses
     })
