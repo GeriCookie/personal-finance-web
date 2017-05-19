@@ -8,48 +8,6 @@ class HomePageTest(TestCase):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
-    def test_can_save_a_POST_request(self):
-        self.client.post('/',  data={
-            'income_category': 'Salary',
-            'income_amount': 1000
-            })
-        self.assertEqual(Income.objects.count(), 1)
-        new_income = Income.objects.first()
-        self.assertEqual(new_income.category, 'Salary')
-        self.assertEqual(new_income.amount, 1000)
-
-    def test_can_save_expense_POST_request(self):
-        self.client.post('/', data={
-            'expense_category': 'Food',
-            'expense_amount': 10
-            })
-        self.assertEqual(Expense.objects.count(), 1)
-        new_expense = Expense.objects.first()
-        self.assertEqual(new_expense.category, 'Food')
-        self.assertEqual(new_expense.amount, 10)
-
-    # def test_can_save_account_balance_after_a_POST_request(self):
-    #     self.client.post('/',  data={
-    #         'income_category': 'Salary',
-    #         'income_amount': 1000
-    #         })
-    #     self.assertEqual(Balance.objects.count(), 1)
-    #     new_balance = Balance.objects.first()
-    #     self.assertEqual(new_balance.total_income, 1000.00)
-    #     self.assertEqual(new_balance.total_amount, 1000.00)
-    #     self.assertEqual(new_balance.total_expenses, 0.00)
-
-    def test_redirects_after_POST(self):
-        response = self.client.post('/', data={
-            'income_category': 'Salary',
-            'income_amount': 1000
-            })
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-                response['location'],
-                '/personal_account/the-only-balance-in-the-world/'
-        )
-
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Income.objects.count(), 0)
@@ -119,3 +77,49 @@ class BalanceViewTest(TestCase):
 
         self.assertContains(response, 'Food: 10')
         self.assertContains(response, 'Movie: 20')
+
+
+class NewBalanceTest(TestCase):
+
+    def test_can_save_a_POST_request(self):
+        self.client.post('/personal_account/new',  data={
+            'income_category': 'Salary',
+            'income_amount': 1000
+            })
+        self.assertEqual(Income.objects.count(), 1)
+        new_income = Income.objects.first()
+        self.assertEqual(new_income.category, 'Salary')
+        self.assertEqual(new_income.amount, 1000)
+
+    def test_can_save_expense_POST_request(self):
+        self.client.post('/personal_account/new', data={
+
+            'expense_category': 'Food',
+            'expense_amount': 10
+            })
+        self.assertEqual(Expense.objects.count(), 1)
+        new_expense = Expense.objects.first()
+        self.assertEqual(new_expense.category, 'Food')
+        self.assertEqual(new_expense.amount, 10)
+
+    # def test_can_save_account_balance_after_a_POST_request(self):
+    #     self.client.post('/',  data={
+    #         'income_category': 'Salary',
+    #         'income_amount': 1000
+    #         })
+    #     self.assertEqual(Balance.objects.count(), 1)
+    #     new_balance = Balance.objects.first()
+    #     self.assertEqual(new_balance.total_income, 1000.00)
+    #     self.assertEqual(new_balance.total_amount, 1000.00)
+    #     self.assertEqual(new_balance.total_expenses, 0.00)
+
+    def test_redirects_after_POST(self):
+        response = self.client.post('/personal_account/new', data={
+            'income_category': 'Salary',
+            'income_amount': 1000
+            })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(
+                response,
+                '/personal_account/the-only-balance-in-the-world/'
+        )

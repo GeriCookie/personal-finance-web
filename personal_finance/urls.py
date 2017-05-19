@@ -20,6 +20,7 @@ from personal_account import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home_page, name='home'),
+    url(r'^personal_account/new$', views.new_balance, name='new_balance'),
     url(r'^personal_account/the-only-balance-in-the-world/$',
         views.view_balance, name='view_balance'),
 ]
