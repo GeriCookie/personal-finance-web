@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from personal_account.models import Income, Expense
+from personal_account.models import Income, Expense, Balance
 
 
 def home_page(request):
@@ -16,7 +16,7 @@ def view_balance(request):
 
 
 def new_balance(request):
-
+    balance = Balance.objects.create()
     new_income_category = request.POST.get('income_category', '')
     new_income_amount = request.POST.get('income_amount', '')
     new_expense_category = request.POST.get('expense_category', '')
@@ -24,12 +24,14 @@ def new_balance(request):
     if new_income_category and new_income_amount:
         Income.objects.create(
                 category=new_income_category,
-                amount=new_income_amount
+                amount=new_income_amount,
+                balance=balance
         )
 
     if new_expense_category and new_expense_amount:
         Expense.objects.create(
                 category=new_expense_category,
-                amount=new_expense_amount
+                amount=new_expense_amount,
+                balance=balance
         )
     return redirect('/personal_account/the-only-balance-in-the-world/')

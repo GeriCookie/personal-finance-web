@@ -1,5 +1,5 @@
 from django.test import TestCase
-from personal_account.models import Income, Expense
+from personal_account.models import Income, Expense, Balance
 
 
 class HomePageTest(TestCase):
@@ -14,18 +14,25 @@ class HomePageTest(TestCase):
         self.assertEqual(Expense.objects.count(), 0)
 
 
-class IncomeModelTest(TestCase):
+class BalanceIncomeAndExpensesModelTest(TestCase):
 
     def test_saving_and_retrieving_incomes(self):
+        balance = Balance()
+        balance.save()
         first_income = Income()
         first_income.category = 'Salary'
         first_income.amount = 1000
+        first_income.balance = balance
         first_income.save()
 
         second_income = Income()
         second_income.category = 'Bonus'
         second_income.amount = 2000
+        second_income.balance = balance
         second_income.save()
+
+        saved_balance = Balance.objects.first()
+        self.assertEqual(saved_balance, balance)
 
         saved_incomes = Income.objects.all()
         self.assertEqual(saved_incomes.count(), 2)
@@ -34,20 +41,29 @@ class IncomeModelTest(TestCase):
         second_saved_income = saved_incomes[1]
         self.assertEqual(first_saved_income.category, 'Salary')
         self.assertEqual(first_saved_income.amount, 1000)
+        self.assertEqual(first_saved_income.balance, balance)
         self.assertEqual(second_saved_income.category, 'Bonus')
         self.assertEqual(second_saved_income.amount, 2000)
+        self.assertEqual(second_saved_income.balance, balance)
 
     def test_saving_and_retrieving_expenses(self):
+        balance = Balance()
+        balance.save()
+
         first_expense = Expense()
         first_expense.category = 'Salary'
         first_expense.amount = 1000
+        first_expense.balance = balance
         first_expense.save()
 
         second_expense = Expense()
         second_expense.category = 'Bonus'
         second_expense.amount = 2000
+        second_expense.balance = balance
         second_expense.save()
 
+        saved_balance = Balance.objects.first()
+        self.assertEqual(saved_balance, balance)
         saved_expenses = Expense.objects.all()
         self.assertEqual(saved_expenses.count(), 2)
 
@@ -55,8 +71,10 @@ class IncomeModelTest(TestCase):
         second_saved_expense = saved_expenses[1]
         self.assertEqual(first_saved_expense.category, 'Salary')
         self.assertEqual(first_saved_expense.amount, 1000)
+        self.assertEqual(first_saved_expense.balance, balance)
         self.assertEqual(second_saved_expense.category, 'Bonus')
         self.assertEqual(second_saved_expense.amount, 2000)
+        self.assertEqual(second_saved_expense.balance, balance)
 
 
 class BalanceViewTest(TestCase):
@@ -68,8 +86,9 @@ class BalanceViewTest(TestCase):
         self.assertTemplateUsed(response, 'balance.html')
 
     def test_displays_all_items(self):
-        Expense.objects.create(category='Food', amount=10)
-        Expense.objects.create(category='Movie', amount=20)
+        balance = Balance.objects.create()
+        Expense.objects.create(category='Food', amount=10, balance=balance)
+        Expense.objects.create(category='Movie', amount=20, balance=balance)
 
         response = self.client.get(
                             '/personal_account/the-only-balance-in-the-world/'
