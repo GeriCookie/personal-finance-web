@@ -1,9 +1,9 @@
+from django.test import LiveServerTestCase
 from selenium import webdriver
 import time
-import unittest
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -19,7 +19,7 @@ class NewVisitorTest(unittest.TestCase):
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
 
         # She notices the page title and header mentioned personal finance
         self.assertIn('Personal Finance', self.browser.title)
@@ -27,12 +27,16 @@ class NewVisitorTest(unittest.TestCase):
         self.assertIn('Personal Finance', header_text)
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id('id_new_income_category')
+        income_inputbox = self.browser.find_element_by_id(
+                                    'id_new_income_category'
+                                    )
         self.assertEqual(
                 income_inputbox.get_attribute('placeholder'),
                 'Enter income category'
                 )
-        income_amountbox = self.browser.find_element_by_id('id_new_income_amount')
+        income_amountbox = self.browser.find_element_by_id(
+                                        'id_new_income_amount'
+                                        )
         self.assertEqual(
                 income_amountbox.get_attribute('placeholder'),
                 "amount"
@@ -47,17 +51,21 @@ class NewVisitorTest(unittest.TestCase):
         income_button.click()
         time.sleep(1)
         # "Salary: 1000" and "Account Balance: 1000"
-        self.check_for_row_in_table('id_income_table', 'Salary: 1000')
+        self.check_for_row_in_table('id_income_table', 'Salary: 1000.00')
 
         # She is invited to enter her expenses amount and category
         # She types "Food" and 10
-        expenses_inputbox = self.browser.find_element_by_id('id_new_expense_category')
+        expenses_inputbox = self.browser.find_element_by_id(
+                                        'id_new_expense_category'
+                                        )
         self.assertEqual(
                 expenses_inputbox.get_attribute('placeholder'),
                 'Enter a expense category'
                 )
 
-        expenses_amountbox = self.browser.find_element_by_id('id_new_expense_amount')
+        expenses_amountbox = self.browser.find_element_by_id(
+                                        'id_new_expense_amount'
+                                        )
         self.assertEqual(
                 expenses_amountbox.get_attribute('placeholder'),
                 "amount"
@@ -67,43 +75,51 @@ class NewVisitorTest(unittest.TestCase):
         # and now the page lists:
         expenses_inputbox.send_keys("Food")
         expenses_amountbox.send_keys(10)
-        expenses_button = self.browser.find_element_by_id('id_new_expense_button')
+        expenses_button = self.browser.find_element_by_id(
+                                        'id_new_expense_button'
+                                        )
         expenses_button.click()
         time.sleep(1)
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
-        self.check_for_row_in_table('id_expense_table', 'Food: 10')
+        self.check_for_row_in_table('id_expense_table', 'Food: 10.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "10"
+                "10.00"
                 )
 
         # There is still a text box inviting her to add another expense.
         # She enters "Movie" and 20
 
-        expenses_inputbox = self.browser.find_element_by_id('id_new_expense_category')
+        expenses_inputbox = self.browser.find_element_by_id(
+                                        'id_new_expense_category'
+                                        )
 
-        expenses_amountbox = self.browser.find_element_by_id('id_new_expense_amount')
+        expenses_amountbox = self.browser.find_element_by_id(
+                                        'id_new_expense_amount'
+                                        )
         expenses_inputbox.send_keys("Movie")
         expenses_amountbox.send_keys(20)
-        expenses_button = self.browser.find_element_by_id('id_new_expense_button')
+        expenses_button = self.browser.find_element_by_id(
+                                    'id_new_expense_button'
+                                    )
         expenses_button.click()
         time.sleep(1)
         # The page updates again, and now shows both expenses,
         # Total expenses: 30, and Account balance: 970
 
-        self.check_for_row_in_table('id_expense_table', 'Food: 10')
-        self.check_for_row_in_table('id_expense_table', 'Movie: 20')
+        self.check_for_row_in_table('id_expense_table', 'Food: 10.00')
+        self.check_for_row_in_table('id_expense_table', 'Movie: 20.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "30"
+                "30.00"
                 )
 
         account_balance = self.browser.find_element_by_id('id_account_balance')
         self.assertEqual(
                 account_balance.text,
-                "970"
+                "970.00"
                 )
         # Cookie wonderss whether the site will remember her list.
         # Then she sees that the site has generated a unique URL for her --
@@ -113,7 +129,3 @@ class NewVisitorTest(unittest.TestCase):
         # She visits that URL - her personal finance balance is still there.
         self.fail('Finish the test')
         # Satisfied, she goes back to sleep
-
-
-if __name__ == '__main__':
-    unittest.main(warnings='ignore')
