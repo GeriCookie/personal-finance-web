@@ -21,6 +21,10 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', views.home_page, name='home'),
     url(r'^personal_account/new$', views.new_balance, name='new_balance'),
-    url(r'^personal_account/the-only-balance-in-the-world/$',
+    url(r'^personal_account/(\d+)/$',
         views.view_balance, name='view_balance'),
+    url(r'^personal_account/(\d+)/add_income$', views.add_income,
+        name='add_income'),
+    url(r'^personal_account/(\d+)/add_expense$', views.add_expense,
+        name='add_expense'),
 ]

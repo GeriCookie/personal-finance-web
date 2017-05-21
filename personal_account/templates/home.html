@@ -4,18 +4,12 @@
     </head>
     <body>
         <h1>Start Your Personal Finance Balance</h1>
+        <h2>First Enter your current income</h2>
         <form method="POST" action="/personal_account/new">
             <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
             <input name="income_amount" id="id_new_income_amount" type=number
-            step=0.1 placeholder="amount" />
+            step=0.01 placeholder="amount" />
             <input id="id_new_income_button" type="submit">
-            {% csrf_token %}
-        </form>
-        <form method="POST" action="/personal_account/new">
-            <input name="expense_category" id="id_new_expense_category" placeholder="Enter a expense category"/>
-            <input name="expense_amount" id="id_new_expense_amount" type=number
-            placeholder="amount" />
-            <input id="id_new_expense_button" type="submit">
             {% csrf_token %}
         </form>
     </body>

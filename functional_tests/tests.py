@@ -91,11 +91,11 @@ class NewVisitorTest(LiveServerTestCase):
         expenses_button.click()
         # "Food: 10", "Total expences: 10" and "Account balance: 990"
         self.wait_for_row_in_table('id_expense_table', 'Food: 10.00')
-        # total_expenses = self.browser.find_element_by_id('id_total_expenses')
-        # self.assertEqual(
-        #        total_expenses.text,
-        #        "10.00"
-        #        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
 
         # There is still a text box inviting her to add another expense.
         # She enters "Movie" and 20
@@ -118,19 +118,19 @@ class NewVisitorTest(LiveServerTestCase):
 
         self.wait_for_row_in_table('id_expense_table', 'Food: 10.00')
         self.wait_for_row_in_table('id_expense_table', 'Movie: 20.00')
-        # total_expenses = self.browser.find_element_by_id('id_total_expenses')
-        # self.assertEqual(
-        #        total_expenses.text,
-        #        "30.00"
-        #        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "30.00"
+                )
 
-        # account_balance = self.browser.find_element_by_id(
-        #                                           'id_account_balance'
-        #                                           )
-        # self.assertEqual(
-        #        account_balance.text,
-        #        "970.00"
-        #        )
+        account_balance = self.browser.find_element_by_id(
+                                                   'id_account_balance'
+                                                   )
+        self.assertEqual(
+                account_balance.text,
+                "970.00"
+                )
         # Cookie wonderss whether the site will remember her list.
         # Then she sees that the site has generated a unique URL for her --
         # there is some explanatory text
