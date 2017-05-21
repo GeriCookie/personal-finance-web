@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, render
 from personal_account.models import Income, Expense, Balance
-from decimal import Decimal
 
 
 def home_page(request):
@@ -25,7 +24,7 @@ def new_balance(request):
     )
     balance.save(income_added=True)
 
-    return redirect(f'/personal_account/{balance.id}/')
+    return redirect(f'/balance/{balance.id}/')
 
 
 def add_income(request, balance_id):
@@ -34,7 +33,7 @@ def add_income(request, balance_id):
     amount = request.POST.get('income_amount', '')
     Income.objects.create(category=category, amount=amount, balance=balance)
     balance.save(income_added=True)
-    return redirect(f'/personal_account/{balance.id}/')
+    return redirect(f'/balance/{balance.id}/')
 
 
 def add_expense(request, balance_id):
@@ -43,4 +42,4 @@ def add_expense(request, balance_id):
     amount = request.POST.get('expense_amount', '')
     Expense.objects.create(category=category, amount=amount, balance=balance)
     balance.save(expense_added=True)
-    return redirect(f'/personal_account/{balance.id}/')
+    return redirect(f'/balance/{balance.id}/')

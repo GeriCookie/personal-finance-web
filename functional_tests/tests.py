@@ -162,7 +162,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # She notices that her balance has a unique URL
         cookie_balance_url = self.browser.current_url
-        self.assertRegex(cookie_balance_url, '/personal_account/.+')
+        self.assertRegex(cookie_balance_url, '/balance/.+')
 
         # Now a new user, Little Cookie, comes along to the site.
 
@@ -198,7 +198,7 @@ class NewVisitorTest(LiveServerTestCase):
 
         # Little Cookie gets her own unique URL
         little_cookies_balance_url = self.browser.current_url
-        self.assertRegex(little_cookies_balance_url, '/personal_account/.+')
+        self.assertRegex(little_cookies_balance_url, '/balance/.+')
         self.assertNotEqual(little_cookies_balance_url, cookie_balance_url)
 
         # Again, there is no trace of Cookie's balance

@@ -82,7 +82,7 @@ class BalanceViewTest(TestCase):
     def test_uses_balance_template(self):
         balance = Balance.objects.create()
         response = self.client.get(
-                f'/personal_account/{balance.id}/'
+                f'/balance/{balance.id}/'
                 )
         self.assertTemplateUsed(response, 'balance.html')
 
@@ -112,7 +112,7 @@ class BalanceViewTest(TestCase):
                 )
 
         response = self.client.get(
-                f'/personal_account/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/'
                 )
 
         self.assertContains(response, 'Food: 10')
@@ -188,7 +188,7 @@ class BalanceViewTest(TestCase):
     def test_passes_correct_balance_to_template(self):
         other_balance = Balance.objects.create()
         correct_balance = Balance.objects.create()
-        response = self.client.get(f'/personal_account/{correct_balance.id}/')
+        response = self.client.get(f'/balance/{correct_balance.id}/')
         self.assertEqual(response.context['balance'], correct_balance)
         self.assertNotEqual(response.context['balance'], other_balance)
 
@@ -196,7 +196,7 @@ class BalanceViewTest(TestCase):
 class NewBalanceTest(TestCase):
 
     def test_can_save_a_POST_request(self):
-        self.client.post('/personal_account/new',  data={
+        self.client.post('/balance/new',  data={
             'income_category': 'Salary',
             'income_amount': 1000
             })
@@ -206,7 +206,7 @@ class NewBalanceTest(TestCase):
         self.assertEqual(new_income.amount, 1000)
 
     def test_can_save_account_balance_after_a_POST_request(self):
-        self.client.post('/personal_account/new',  data={
+        self.client.post('/balance/new',  data={
              'income_category': 'Salary',
              'income_amount': 1000
              })
@@ -217,7 +217,7 @@ class NewBalanceTest(TestCase):
         self.assertEqual(new_balance.total_expense, 0.00)
 
     def test_redirects_after_POST(self):
-        response = self.client.post('/personal_account/new', data={
+        response = self.client.post('/balance/new', data={
             'income_category': 'Salary',
             'income_amount': 1000
             })
@@ -225,7 +225,7 @@ class NewBalanceTest(TestCase):
         new_balance = Balance.objects.first()
         self.assertRedirects(
                 response,
-                f'/personal_account/{new_balance.id}/'
+                f'/balance/{new_balance.id}/'
                 )
 
 
@@ -236,7 +236,7 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/personal_account/{correct_balance.id}/add_income',
+                f'/balance/{correct_balance.id}/add_income',
                 data={'income_category': 'Salary', 'income_amount': 1000}
                 )
 
@@ -252,13 +252,13 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/personal_account/{correct_balance.id}/add_income',
+                f'/balance/{correct_balance.id}/add_income',
                 data={'income_category': 'Salary', 'income_amount': 500.00}
                 )
 
         self.assertRedirects(
                 response,
-                f'/personal_account/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/'
         )
 
 
@@ -269,7 +269,7 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/personal_account/{correct_balance.id}/add_expense',
+                f'/balance/{correct_balance.id}/add_expense',
                 data={'expense_category': 'Food', 'expense_amount': 10}
                 )
 
@@ -285,11 +285,11 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/personal_account/{correct_balance.id}/add_expense',
+                f'/balance/{correct_balance.id}/add_expense',
                 data={'expense_category': 'Food', 'expense_amount': 10.00}
                 )
 
         self.assertRedirects(
                 response,
-                f'/personal_account/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/'
         )
