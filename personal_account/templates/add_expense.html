@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block header_text %}Your Expenses{% endblock %}
+{% block header2_text %}Enter expense{% endblock %}
+{% block content %}
+        <form method="POST" action="/balance/{{ balance.id }}/add_expense/">
+            <input name="expense_category" id="id_new_expense_category" placeholder="Enter a expense category"/>
+            <input name="expense_amount" id="id_new_expense_amount" type=number
+            placeholder="amount" />
+            <input id="id_new_expense_button" type="submit">
+            {% csrf_token %}
+        </form>
+        <table id="id_expense_table">
+            {% for expense in balance.expense_set.all %}
+            <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
+            {% endfor %}
+        </table>
+        <h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
+{% endblock %}

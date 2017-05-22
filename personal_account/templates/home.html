@@ -1,10 +1,8 @@
-<html>
-    <head>
-        <title>Personal Finance</title>
-    </head>
-    <body>
-        <h1>Start Your Personal Finance Balance</h1>
-        <h2>First Enter your current income</h2>
+{% extends 'base.html' %}
+
+{% block header_text %}Start Your Personal Finance Balance{% endblock %}
+{% block header2_text %}First Enter your current income{% endblock %}
+{% block content %}
         <form method="POST" action="/balance/new">
             <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
             <input name="income_amount" id="id_new_income_amount" type=number
@@ -12,5 +10,4 @@
             <input id="id_new_income_button" type="submit">
             {% csrf_token %}
         </form>
-    </body>
-</html>
+{% endblock %}

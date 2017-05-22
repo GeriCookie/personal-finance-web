@@ -1,35 +1,23 @@
-<html>
-    <head>
-        <title>Personal Finance</title>
-    </head>
-    <body>
-        <h1> Your Personal Finance List</h1>
-        <form method="POST" action="/balance/{{ balance.id }}/add_income">
-            <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
-            <input name="income_amount" id="id_new_income_amount" type=number
-            step=0.1 placeholder="amount" />
-            <input id="id_new_income_button" type="submit">
-            {% csrf_token %}
-        </form>
-        <table id="id_income_table">
-            {% for income in balance.income_set.all %}
-            <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
-            {% endfor %}
-        </table>
-        <h1>Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
-        <form method="POST" action="/balance/{{ balance.id }}/add_expense">
-            <input name="expense_category" id="id_new_expense_category" placeholder="Enter a expense category"/>
-            <input name="expense_amount" id="id_new_expense_amount" type=number
-            placeholder="amount" />
-            <input id="id_new_expense_button" type="submit">
-            {% csrf_token %}
-        </form>
-        <table id="id_expense_table">
-            {% for expense in balance.expense_set.all %}
-            <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
-            {% endfor %}
-        </table>
-        <h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
-        <h1>Account balance: <span id="id_account_balance">{{ balance.total_amount }}</span></h1>
-    </body>
-</html>
+{% extends 'base.html' %}
+
+{% block header_text %} Your personal balance{% endblock %}
+{% block header2_text %}Here you can see how your expenses effect to your
+balance {% endblock %}
+{% block content %}
+<a href="/balance/{{ balance.id}}/add_income/" id="id_add_new_income">Add new income</a>
+<table id="id_income_table">
+    {% for income in balance.income_set.all %}
+    <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
+    {% endfor %}
+</table>
+<h1>Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
+<h2>Expenses</h2>
+<a href="/balance/{{ balance.id }}/add_expense/" id="id_add_new_expense">Add new Expense</a>
+<table id="id_expense_table">
+    {% for expense in balance.expense_set.all %}
+    <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
+    {% endfor %}
+</table>
+<h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
+<h1>Account balance: <span id="id_account_balance">{{ balance.total_amount }}</span></h1>
+{% endblock %}

@@ -27,6 +27,17 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
+    def wait_for_element_on_page(self, element_id):
+        start_time = time.time()
+        while True:
+            try:
+                element = self.browser.find_element_by_id(element_id)
+                return element
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
+
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
@@ -64,10 +75,14 @@ class NewVisitorTest(LiveServerTestCase):
         self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
 
         # She is invited to enter her expenses amount and category
-        # She types "Food" and 10
-        expenses_inputbox = self.browser.find_element_by_id(
-                                        'id_new_expense_category'
+        add_expenses_button = self.browser.find_element_by_id(
+                                        'id_add_new_expense'
                                         )
+        add_expenses_button.click()
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+        )
+        # She types "Food" and 10
         self.assertEqual(
                 expenses_inputbox.get_attribute('placeholder'),
                 'Enter a expense category'
@@ -100,9 +115,13 @@ class NewVisitorTest(LiveServerTestCase):
         # There is still a text box inviting her to add another expense.
         # She enters "Movie" and 20
 
-        expenses_inputbox = self.browser.find_element_by_id(
-                                        'id_new_expense_category'
+        add_expenses_button = self.browser.find_element_by_id(
+                                        'id_add_new_expense'
                                         )
+        add_expenses_button.click()
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+        )
 
         expenses_amountbox = self.browser.find_element_by_id(
                                         'id_new_expense_amount'

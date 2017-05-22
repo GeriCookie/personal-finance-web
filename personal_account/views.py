@@ -29,17 +29,33 @@ def new_balance(request):
 
 def add_income(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
-    category = request.POST.get('income_category', '')
-    amount = request.POST.get('income_amount', '')
-    Income.objects.create(category=category, amount=amount, balance=balance)
-    balance.save(income_added=True)
-    return redirect(f'/balance/{balance.id}/')
+    if request.method == 'POST':
+        category = request.POST.get('income_category', '')
+        amount = request.POST.get('income_amount', '')
+        Income.objects.create(
+                category=category,
+                amount=amount,
+                balance=balance
+        )
+        balance.save(income_added=True)
+        return redirect(f'/balance/{balance.id}/')
+    return render(request, 'add_income.html', {
+            'balance': balance
+            })
 
 
 def add_expense(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
-    category = request.POST.get('expense_category', '')
-    amount = request.POST.get('expense_amount', '')
-    Expense.objects.create(category=category, amount=amount, balance=balance)
-    balance.save(expense_added=True)
-    return redirect(f'/balance/{balance.id}/')
+    if request.method == 'POST':
+        category = request.POST.get('expense_category', '')
+        amount = request.POST.get('expense_amount', '')
+        Expense.objects.create(
+                category=category,
+                amount=amount,
+                balance=balance
+        )
+        balance.save(expense_added=True)
+        return redirect(f'/balance/{balance.id}/')
+    return render(request, 'add_expense.html', {
+            'balance': balance
+        })

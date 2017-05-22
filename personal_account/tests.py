@@ -215,7 +215,7 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/balance/{correct_balance.id}/add_income',
+                f'/balance/{correct_balance.id}/add_income/',
                 data={'income_category': 'Salary', 'income_amount': 1000}
                 )
 
@@ -231,7 +231,7 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/balance/{correct_balance.id}/add_income',
+                f'/balance/{correct_balance.id}/add_income/',
                 data={'income_category': 'Salary', 'income_amount': 500.00}
                 )
 
@@ -248,7 +248,7 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/balance/{correct_balance.id}/add_expense',
+                f'/balance/{correct_balance.id}/add_expense/',
                 data={'expense_category': 'Food', 'expense_amount': 10}
                 )
 
@@ -264,7 +264,7 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/balance/{correct_balance.id}/add_expense',
+                f'/balance/{correct_balance.id}/add_expense/',
                 data={'expense_category': 'Food', 'expense_amount': 10.00}
                 )
 

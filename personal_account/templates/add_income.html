@@ -1,0 +1,18 @@
+{% extends 'base.html' %}       
+{% block header_text %}Your Incomes{% endblock %}
+{% block header2_text %}Enter income{% endblock %}
+{% block content %}
+        <form method="POST" action="/balance/{{ balance.id }}/add_income/">
+            <input name="income_category" id="id_new_income_category" placeholder="Enter income category" />
+            <input name="income_amount" id="id_new_income_amount" type=number
+            step=0.1 placeholder="amount" />
+            <input id="id_new_income_button" type="submit">
+            {% csrf_token %}
+        </form>
+        <table id="id_income_table">
+            {% for income in balance.income_set.all %}
+            <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
+            {% endfor %}
+        </table>
+        <h1>Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
+{% endblock %}
