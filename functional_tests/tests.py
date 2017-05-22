@@ -205,3 +205,49 @@ class NewVisitorTest(LiveServerTestCase):
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Salary: 1000', page_text)
         self.assertIn('Salary: 800', page_text)
+
+    def test_layout_and_styling(self):
+        # Cookie goes to the home page
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
+
+        # She notices the input box is nicely centered
+        category_inputbox = self.browser.find_element_by_id(
+                                        'id_new_income_category'
+            )
+        amount_inputbox = self.browser.find_element_by_id(
+                                'id_new_income_amount'
+                )
+        button = self.browser.find_element_by_id(
+                        'id_new_income_button'
+                    )
+        self.assertAlmostEqual(
+                category_inputbox.location['x'] +
+                (category_inputbox.size['width'] +
+                    amount_inputbox.size['width'] +
+                    button.size['width'])/2,
+                512,
+                delta=10
+        )
+        category_inputbox.send_keys('Salary')
+        amount_inputbox.send_keys(1000)
+        button.click()
+        self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
+
+        category_inputbox = self.browser.find_element_by_id(
+                                        'id_new_income_category'
+            )
+        amount_inputbox = self.browser.find_element_by_id(
+                                'id_new_income_amount'
+                )
+        button = self.browser.find_element_by_id(
+                        'id_new_income_button'
+                    )
+        self.assertAlmostEqual(
+                category_inputbox.location['x'] +
+                (category_inputbox.size['width'] +
+                    amount_inputbox.size['width'] +
+                    button.size['width'])/2,
+                256,
+                delta=10
+        )
