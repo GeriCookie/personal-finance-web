@@ -1,11 +1,27 @@
-<html>
-    <head>
-        <title>Personal Finance</title>
-    </head>
-    <body>
-        <h1>{% block header_text %}{% endblock %}</h1>
-        <h2>{% block header2_text %}{% endblock %}</h2>
-        {% block content %}
-        {% endblock %}
-    </body>
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Personal Finance</title>
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+    type="text/css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="jumbotron">
+            <div class="text-center">
+                <h1>{% block header_text %}{% endblock %}</h1>
+
+
+                <h2>{% block header2_text %}{% endblock %}</h2>
+            </div>
+        </div>
+        {% block content %} {% endblock %}
+    </div>
+</body>
 </html>

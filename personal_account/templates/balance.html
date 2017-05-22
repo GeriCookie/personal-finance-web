@@ -4,20 +4,29 @@
 {% block header2_text %}Here you can see how your expenses effect to your
 balance {% endblock %}
 {% block content %}
-<a href="/balance/{{ balance.id}}/add_income/" id="id_add_new_income">Add new income</a>
-<table id="id_income_table">
-    {% for income in balance.income_set.all %}
-    <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
-    {% endfor %}
-</table>
-<h1>Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
-<h2>Expenses</h2>
-<a href="/balance/{{ balance.id }}/add_expense/" id="id_add_new_expense">Add new Expense</a>
-<table id="id_expense_table">
-    {% for expense in balance.expense_set.all %}
-    <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
-    {% endfor %}
-</table>
-<h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
-<h1>Account balance: <span id="id_account_balance">{{ balance.total_amount }}</span></h1>
+<div class="row">
+    <div class="col-md-4 col-md-offset-2 text-center">
+        <h2>Incomes</h2>
+        <a href="/balance/{{ balance.id}}/add_income/" id="id_add_new_income"
+                                                       class="btn btn-success">Add new income</a>
+        <table id="id_income_table" class="table">
+            {% for income in balance.income_set.all %}
+            <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
+            {% endfor %}
+        </table>
+        <h1>Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
+    </div>
+    <div class="col-md-4 col-md text-center">
+    <h2>Expenses</h2>
+    <a href="/balance/{{ balance.id }}/add_expense/" id="id_add_new_expense"
+        class="btn btn-success">Add new Expense</a>
+    <table id="id_expense_table" class="table">
+        {% for expense in balance.expense_set.all %}
+        <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
+        {% endfor %}
+    </table>
+    <h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
+    </div>
+</div>
+<h1 class="text-center">Account balance: <span id="id_account_balance">{{ balance.total_amount }}</span></h1>
 {% endblock %}

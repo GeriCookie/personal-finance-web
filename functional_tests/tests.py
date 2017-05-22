@@ -1,12 +1,12 @@
 from selenium.common.exceptions import WebDriverException
-from django.test import LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 import time
 
 MAX_WAIT = 10
 
 
-class NewVisitorTest(LiveServerTestCase):
+class NewVisitorTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
@@ -253,20 +253,24 @@ class NewVisitorTest(LiveServerTestCase):
         button.click()
         self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
 
-        category_inputbox = self.browser.find_element_by_id(
-                                        'id_new_income_category'
-            )
+        add_expenses_button = self.browser.find_element_by_id(
+                                        'id_add_new_expense'
+                                        )
+        add_expenses_button.click()
+        category_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+        )
         amount_inputbox = self.browser.find_element_by_id(
-                                'id_new_income_amount'
+                                'id_new_expense_amount'
                 )
         button = self.browser.find_element_by_id(
-                        'id_new_income_button'
+                        'id_new_expense_button'
                     )
         self.assertAlmostEqual(
                 category_inputbox.location['x'] +
                 (category_inputbox.size['width'] +
                     amount_inputbox.size['width'] +
                     button.size['width'])/2,
-                256,
+                512,
                 delta=10
         )
