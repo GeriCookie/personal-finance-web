@@ -76,7 +76,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # She sees a button that tells her "Go to total balance"
         total_balance_button = self.browser.find_element_by_id(
-                                            'id_total_income_button'
+                                            'id_total_balance_button'
         )
 
         # She click it and the page is changed to Total balance page:
@@ -87,7 +87,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 '1000.00'
         )
         total_income = self.browser.find_element_by_id('id_total_income')
-        self.ssertEqual(
+        self.assertEqual(
                 total_income.text,
                 '1000.00'
         )
@@ -129,7 +129,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                                         )
         expenses_button.click()
         # "Food: 10", "Total expences: 10"
-        self.wait_for_li_in_ul('id_expense_ul', 'Food: 10.00')
+        self.wait_for_li_in_ul('id_expenses_list', 'Food: 10.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
@@ -139,10 +139,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # There is still a text box inviting her to add another expense.
         # She enters "Movie" and 20
 
-        add_expenses_button = self.browser.find_element_by_id(
-                                        'id_add_new_expense'
-                                        )
-        add_expenses_button.click()
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
         )
@@ -157,12 +153,12 @@ class NewVisitorTest(StaticLiveServerTestCase):
                                     )
         expenses_button.click()
         # The page updates again, and now shows both expenses,
-        self.wait_for_li_in_ul('id_expense_table', 'Food: 10.00')
-        self.wait_for_li_in_ul('id_expense_table', 'Movie: 20.00')
+        self.wait_for_li_in_ul('id_expenses_list', 'Food: 10.00')
+        self.wait_for_li_in_ul('id_expenses_list', 'Movie: 20.00')
 
         # She sees a button that tells her "Go to total balance"
         total_balance_button = self.browser.find_element_by_id(
-                                            'id_total_income_button'
+                                            'id_total_balance_button'
         )
 
         # She click it and the page is changed to Total balance page:
@@ -280,20 +276,15 @@ class NewVisitorTest(StaticLiveServerTestCase):
         category_inputbox.send_keys('Salary')
         amount_inputbox.send_keys(1000)
         button.click()
-        self.wait_for_li_in_ul('id_income_table', 'Salary: 1000.00')
-
-        add_expenses_button = self.browser.find_element_by_id(
-                                        'id_add_new_expense'
-                                        )
-        add_expenses_button.click()
-        category_inputbox = self.wait_for_element_on_page(
-                'id_new_expense_category'
-        )
+        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
+        category_inputbox = self.browser.find_element_by_id(
+                                        'id_new_income_category'
+            )
         amount_inputbox = self.browser.find_element_by_id(
-                                'id_new_expense_amount'
+                                'id_new_income_amount'
                 )
         button = self.browser.find_element_by_id(
-                        'id_new_expense_button'
+                        'id_new_income_button'
                     )
         self.assertAlmostEqual(
                 category_inputbox.location['x'] +
