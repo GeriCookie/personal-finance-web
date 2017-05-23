@@ -50,34 +50,39 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # She is invited to enter her income amount and category straight away
         income_inputbox = self.browser.find_element_by_id(
-                                    'id_new_income_category'
-                                    )
+                'id_new_income_category'
+                )
         self.assertEqual(
                 income_inputbox.get_attribute('placeholder'),
                 'Enter income category'
                 )
         income_amountbox = self.browser.find_element_by_id(
-                                        'id_new_income_amount'
-                                        )
+                'id_new_income_amount'
+                )
+
         self.assertEqual(
                 income_amountbox.get_attribute('placeholder'),
                 "amount"
                 )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
         income_amountbox.send_keys(1000)
-
+        income_date.send_keys('05/24/2017')
         # When she hits the "Add income" button, the page updates,
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
         # "Salary: 1000"
-        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                    'id_income_list',
+                    '24 May 2017 || Salary: 1000.00'
+        )
 
         # She sees a button that tells her "Go to total balance"
         total_balance_button = self.browser.find_element_by_id(
-                                            'id_total_balance_button'
-        )
+                'id_total_balance_button'
+                )
 
         # She click it and the page is changed to Total balance page:
         total_balance_button.click()
@@ -85,27 +90,27 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.assertEqual(
                 total_balance.text,
                 '1000.00'
-        )
+                )
         total_income = self.browser.find_element_by_id('id_total_income')
         self.assertEqual(
                 total_income.text,
                 '1000.00'
-        )
+                )
         # She sees that her total expenses are 0.00
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 '0.00'
-        )
+                )
         # She sees the Add new expense button and click it:
         add_expenses_button = self.browser.find_element_by_id(
-                                        'id_add_new_expense'
-                                        )
+                'id_add_new_expense'
+                )
         add_expenses_button.click()
         # She is invited to enter her expenses amount and category
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
-        )
+                )
         # She types "Food" and 10
         self.assertEqual(
                 expenses_inputbox.get_attribute('placeholder'),
@@ -113,23 +118,28 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 )
 
         expenses_amountbox = self.browser.find_element_by_id(
-                                        'id_new_expense_amount'
-                                        )
+                'id_new_expense_amount'
+                )
         self.assertEqual(
                 expenses_amountbox.get_attribute('placeholder'),
                 "amount"
                 )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
 
         # When she hits the "Add expense" button, the page updates
         # and now the page lists:
         expenses_inputbox.send_keys("Food")
         expenses_amountbox.send_keys(10)
+        expenses_date.send_keys('05/24/2017')
         expenses_button = self.browser.find_element_by_id(
-                                        'id_new_expense_button'
-                                        )
+                'id_new_expense_button'
+                )
         expenses_button.click()
         # "Food: 10", "Total expences: 10"
-        self.wait_for_li_in_ul('id_expenses_list', 'Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '24 May 2017 || Food: 10.00'
+        )
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
@@ -141,25 +151,32 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
-        )
+                )
 
         expenses_amountbox = self.browser.find_element_by_id(
-                                        'id_new_expense_amount'
-                                        )
+                'id_new_expense_amount'
+                )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
         expenses_inputbox.send_keys("Movie")
         expenses_amountbox.send_keys(20)
+        expenses_date.send_keys('05/23/2017')
         expenses_button = self.browser.find_element_by_id(
-                                    'id_new_expense_button'
-                                    )
+                'id_new_expense_button'
+                )
         expenses_button.click()
         # The page updates again, and now shows both expenses,
-        self.wait_for_li_in_ul('id_expenses_list', 'Food: 10.00')
-        self.wait_for_li_in_ul('id_expenses_list', 'Movie: 20.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '24 May 2017 || Food: 10.00'
+        )
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '23 May 2017 || Movie: 20.00')
 
         # She sees a button that tells her "Go to total balance"
         total_balance_button = self.browser.find_element_by_id(
-                                            'id_total_balance_button'
-        )
+                'id_total_balance_button'
+                )
 
         # She click it and the page is changed to Total balance page:
         total_balance_button.click()
@@ -189,21 +206,25 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
 
         income_inputbox = self.browser.find_element_by_id(
-                                    'id_new_income_category'
-                                    )
+                'id_new_income_category'
+                )
         income_amountbox = self.browser.find_element_by_id(
-                                        'id_new_income_amount'
-                                        )
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
         income_amountbox.send_keys(1000)
-
+        income_date('05/24/2017')
         # When she hits the "Add income" button, the page updates,
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
         # "Salary: 1000" and "Account Balance: 1000"
-        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                '24 May 2017 || Salary: 1000.00'
+        )
 
         # She notices that her balance has a unique URL
         cookie_balance_url = self.browser.current_url
@@ -225,20 +246,25 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Little Cookie starts a new balance by entering a new item.
 
         income_inputbox = self.browser.find_element_by_id(
-                                    'id_new_income_category'
-                                    )
+                'id_new_income_category'
+                )
         income_amountbox = self.browser.find_element_by_id(
-                                        'id_new_income_amount'
-                                        )
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
         # She types "Salary" and 800 into a text box
         income_inputbox.send_keys('Salary')
         income_amountbox.send_keys(800)
+        income_date.send_keys('05/24/2017')
 
         # When she hits the "Add income" button, the page updates,
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
-        self.wait_for_li_in_ul('id_income_list', 'Salary: 800.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                '24 May 2017 || Salary: 800.00'
+        )
 
         # Little Cookie gets her own unique URL
         little_cookies_balance_url = self.browser.current_url
@@ -247,8 +273,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # Again, there is no trace of Cookie's balance
         page_text = self.browser.find_element_by_tag_name('body').text
-        self.assertNotIn('Salary: 1000', page_text)
-        self.assertIn('Salary: 800', page_text)
+        self.assertNotIn('24 May 2017 || Salary: 1000', page_text)
+        self.assertIn('24 May 2017 || Salary: 800', page_text)
 
     def test_layout_and_styling(self):
         # Cookie goes to the home page
@@ -257,40 +283,48 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # She notices the input box is nicely centered
         category_inputbox = self.browser.find_element_by_id(
-                                        'id_new_income_category'
-            )
-        amount_inputbox = self.browser.find_element_by_id(
-                                'id_new_income_amount'
+                'id_new_income_category'
                 )
+        amount_inputbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        date_inputbox = self.browser.find_element_by_id('id_new_income_date')
         button = self.browser.find_element_by_id(
-                        'id_new_income_button'
-                    )
+                'id_new_income_button'
+                )
         self.assertAlmostEqual(
                 category_inputbox.location['x'] +
                 (category_inputbox.size['width'] +
                     amount_inputbox.size['width'] +
+                    date_inputbox.size['width'] +
                     button.size['width'])/2,
                 512,
                 delta=10
-        )
+                )
         category_inputbox.send_keys('Salary')
         amount_inputbox.send_keys(1000)
+        date_inputbox('05/24/2017')
         button.click()
-        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                '24 May 2017 || Salary: 1000.00'
+        )
         category_inputbox = self.browser.find_element_by_id(
-                                        'id_new_income_category'
-            )
-        amount_inputbox = self.browser.find_element_by_id(
-                                'id_new_income_amount'
+                'id_new_income_category'
                 )
+        amount_inputbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        date_inputbox = self.browser.find_element_by_id('id_new_income_date')
         button = self.browser.find_element_by_id(
-                        'id_new_income_button'
-                    )
+                'id_new_income_button'
+                )
         self.assertAlmostEqual(
                 category_inputbox.location['x'] +
                 (category_inputbox.size['width'] +
                     amount_inputbox.size['width'] +
+                    date_inputbox.size['width'] +
                     button.size['width'])/2,
                 512,
                 delta=10
-        )
+                )
