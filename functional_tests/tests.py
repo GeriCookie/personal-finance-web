@@ -14,13 +14,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def wait_for_row_in_table(self, table_id, row_text):
+    def wait_for_li_in_ul(self, ul_id, row_text):
         start_time = time.time()
         while True:
             try:
-                table = self.browser.find_element_by_id(table_id)
-                rows = table.find_elements_by_tag_name('li')
-                self.assertIn(row_text, [row.text for row in rows])
+                ul = self.browser.find_element_by_id(ul_id)
+                lis = ul.find_elements_by_tag_name('li')
+                self.assertIn(row_text, [li.text for li in lis])
                 return
             except (AssertionError, WebDriverException) as e:
                 if time.time() - start_time > MAX_WAIT:
@@ -71,14 +71,38 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
-        # "Salary: 1000" and "Account Balance: 1000"
-        self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
+        # "Salary: 1000"
+        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
 
-        # She is invited to enter her expenses amount and category
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                                            'id_total_income_button'
+        )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        self.assertEqual(
+                total_balance.text,
+                '1000.00'
+        )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.ssertEqual(
+                total_income.text,
+                '1000.00'
+        )
+        # She sees that her total expenses are 0.00
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                '0.00'
+        )
+        # She sees the Add new expense button and click it:
         add_expenses_button = self.browser.find_element_by_id(
                                         'id_add_new_expense'
                                         )
         add_expenses_button.click()
+        # She is invited to enter her expenses amount and category
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
         )
@@ -104,8 +128,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
                                         'id_new_expense_button'
                                         )
         expenses_button.click()
-        # "Food: 10", "Total expences: 10" and "Account balance: 990"
-        self.wait_for_row_in_table('id_expense_table', 'Food: 10.00')
+        # "Food: 10", "Total expences: 10"
+        self.wait_for_li_in_ul('id_expense_ul', 'Food: 10.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
@@ -133,23 +157,29 @@ class NewVisitorTest(StaticLiveServerTestCase):
                                     )
         expenses_button.click()
         # The page updates again, and now shows both expenses,
-        # Total expenses: 30, and Account balance: 970
+        self.wait_for_li_in_ul('id_expense_table', 'Food: 10.00')
+        self.wait_for_li_in_ul('id_expense_table', 'Movie: 20.00')
 
-        self.wait_for_row_in_table('id_expense_table', 'Food: 10.00')
-        self.wait_for_row_in_table('id_expense_table', 'Movie: 20.00')
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                                            'id_total_income_button'
+        )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        # Total expenses: 30, and Account balance: 970
+        self.assertEqual(
+                total_balance.text,
+                "970.00"
+                )
+
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "30.00"
                 )
 
-        account_balance = self.browser.find_element_by_id(
-                                                   'id_account_balance'
-                                                   )
-        self.assertEqual(
-                account_balance.text,
-                "970.00"
-                )
         # Cookie wonderss whether the site will remember her list.
         # Then she sees that the site has generated a unique URL for her --
         # there is some explanatory text
@@ -177,7 +207,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
         # "Salary: 1000" and "Account Balance: 1000"
-        self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
+        self.wait_for_li_in_ul('id_income_list', 'Salary: 1000.00')
 
         # She notices that her balance has a unique URL
         cookie_balance_url = self.browser.current_url
@@ -195,7 +225,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Salary: 1000', page_text)
-        self.assertNotIn('Food: 10', page_text)
 
         # Little Cookie starts a new balance by entering a new item.
 
@@ -213,7 +242,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
         income_button.click()
-        self.wait_for_row_in_table('id_income_table', 'Salary: 800.00')
+        self.wait_for_li_in_ul('id_income_list', 'Salary: 800.00')
 
         # Little Cookie gets her own unique URL
         little_cookies_balance_url = self.browser.current_url
@@ -251,7 +280,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         category_inputbox.send_keys('Salary')
         amount_inputbox.send_keys(1000)
         button.click()
-        self.wait_for_row_in_table('id_income_table', 'Salary: 1000.00')
+        self.wait_for_li_in_ul('id_income_table', 'Salary: 1000.00')
 
         add_expenses_button = self.browser.find_element_by_id(
                                         'id_add_new_expense'
