@@ -86,7 +86,7 @@ class BalanceViewTest(TestCase):
                 )
         self.assertTemplateUsed(response, 'balance.html')
 
-    def test_displays_only_items_for_that_balance(self):
+    def test_displays_only_expenses_for_that_balance(self):
         correct_balance = Balance.objects.create()
         Expense.objects.create(
                 category='Food',
@@ -115,7 +115,7 @@ class BalanceViewTest(TestCase):
         other_balance.save(expense_added=True)
 
         response = self.client.get(
-                f'/balance/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/expenses/'
                 )
 
         self.assertContains(response, 'Food: 10')
@@ -204,7 +204,7 @@ class NewBalanceTest(TestCase):
         new_balance = Balance.objects.first()
         self.assertRedirects(
                 response,
-                f'/balance/{new_balance.id}/'
+                f'/balance/{new_balance.id}/income/'
                 )
 
 
@@ -215,7 +215,7 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/balance/{correct_balance.id}/add_income/',
+                f'/balance/{correct_balance.id}/income/',
                 data={'income_category': 'Salary', 'income_amount': 1000}
                 )
 
@@ -231,13 +231,13 @@ class NewIncomeTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/balance/{correct_balance.id}/add_income/',
+                f'/balance/{correct_balance.id}/income/',
                 data={'income_category': 'Salary', 'income_amount': 500.00}
                 )
 
         self.assertRedirects(
                 response,
-                f'/balance/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/income/'
                 )
 
 
@@ -248,7 +248,7 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         self.client.post(
-                f'/balance/{correct_balance.id}/add_expense/',
+                f'/balance/{correct_balance.id}/expenses/',
                 data={'expense_category': 'Food', 'expense_amount': 10}
                 )
 
@@ -264,11 +264,11 @@ class NewExpenseTest(TestCase):
         correct_balance = Balance.objects.create()
 
         response = self.client.post(
-                f'/balance/{correct_balance.id}/add_expense/',
+                f'/balance/{correct_balance.id}/expenses/',
                 data={'expense_category': 'Food', 'expense_amount': 10.00}
                 )
 
         self.assertRedirects(
                 response,
-                f'/balance/{correct_balance.id}/'
+                f'/balance/{correct_balance.id}/expenses/'
                 )

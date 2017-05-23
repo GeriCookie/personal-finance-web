@@ -24,10 +24,10 @@ def new_balance(request):
     )
     balance.save(income_added=True)
 
-    return redirect(f'/balance/{balance.id}/')
+    return redirect(f'/balance/{balance.id}/income/')
 
 
-def add_income(request, balance_id):
+def income(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     if request.method == 'POST':
         category = request.POST.get('income_category', '')
@@ -38,13 +38,13 @@ def add_income(request, balance_id):
                 balance=balance
         )
         balance.save(income_added=True)
-        return redirect(f'/balance/{balance.id}/')
-    return render(request, 'add_income.html', {
+        return redirect(f'/balance/{balance.id}/income/')
+    return render(request, 'income.html', {
             'balance': balance
             })
 
 
-def add_expense(request, balance_id):
+def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     if request.method == 'POST':
         category = request.POST.get('expense_category', '')
@@ -55,7 +55,7 @@ def add_expense(request, balance_id):
                 balance=balance
         )
         balance.save(expense_added=True)
-        return redirect(f'/balance/{balance.id}/')
-    return render(request, 'add_expense.html', {
+        return redirect(f'/balance/{balance.id}/expenses/')
+    return render(request, 'expenses.html', {
             'balance': balance
         })

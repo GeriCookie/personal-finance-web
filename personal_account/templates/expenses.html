@@ -2,7 +2,8 @@
 {% block header_text %}Your Expenses{% endblock %}
 {% block header2_text %}Enter expense{% endblock %}
 {% block content %}
-        <form method="POST" action="/balance/{{ balance.id }}/add_expense/"
+<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+        <form method="POST" action="/balance/{{ balance.id }}/expenses/"
             class="form-inline text-center">
             <input name="expense_category" 
                    id="id_new_expense_category" 
@@ -18,10 +19,10 @@
                    type="submit">
             {% csrf_token %}
         </form>
-        <table id="id_expense_table" class="table text-center">
+        <ul id="id_expenses_list" class="list list-balances">
             {% for expense in balance.expense_set.all %}
-            <tr><td>{{ expense.category }}: {{ expense.amount }}</td></tr>
+            <li class="list-item">{{ expense.category }}: {{ expense.amount }}</li>
             {% endfor %}
-        </table>
+        </ul>
         <h1 class="text-center">Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
 {% endblock %}

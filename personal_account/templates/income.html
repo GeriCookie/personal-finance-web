@@ -2,7 +2,8 @@
 {% block header_text %}Your Incomes{% endblock %}
 {% block header2_text %}Enter income{% endblock %}
 {% block content %}
-        <form method="POST" action="/balance/{{ balance.id }}/add_income/" 
+<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+<form method="POST" action="/balance/{{ balance.id }}/add_income/" 
             class="form-inline text-center">
             <input name="income_category" 
                    id="id_new_income_category" 
@@ -19,10 +20,12 @@
                    type="submit">
             {% csrf_token %}
         </form>
-        <table id="id_income_table" class="table text-center">
+        <ul id="id_income_list" class="list list-balances">
             {% for income in balance.income_set.all %}
-            <tr><td>{{ income.category }}: {{ income.amount }}</td></tr>
+            <li class="list-item">
+                {{ income.category }}: {{ income.amount }}
+            </li>
             {% endfor %}
-        </table>
+        </ul>
         <h1 class="text-center">Total income: <span id="id_total_income">{{ balance.total_income }}</span></h1>
 {% endblock %}
