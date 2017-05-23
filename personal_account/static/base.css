@@ -1,4 +1,23 @@
-.table>tbody>tr>td{
-    margin-top: 20ex;
-    background: red;
+
+/* widgets  */
+
+.list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.list > .list-item {
+    margin-top: 15px
+}
+
+.list > .list-item:first-of-type {
+    margin-top: 0
+}
+
+
+/* concrete styles */
+
+.list-balances {
+    margin-top: 20px;
 }

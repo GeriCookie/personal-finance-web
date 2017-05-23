@@ -19,7 +19,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         while True:
             try:
                 table = self.browser.find_element_by_id(table_id)
-                rows = table.find_elements_by_tag_name('tr')
+                rows = table.find_elements_by_tag_name('li')
                 self.assertIn(row_text, [row.text for row in rows])
                 return
             except (AssertionError, WebDriverException) as e:
