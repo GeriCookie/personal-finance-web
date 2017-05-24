@@ -1,5 +1,6 @@
 from django.test import TestCase
 from personal_account.models import Income, Expense, Balance
+from datetime import datetime
 
 
 class HomePageTest(TestCase):
@@ -11,7 +12,6 @@ class HomePageTest(TestCase):
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
         self.assertEqual(Income.objects.count(), 0)
-        self.assertEqual(Expense.objects.count(), 0)
 
 
 class BalanceIncomeAndExpensesModelTest(TestCase):
@@ -22,12 +22,14 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         Income.objects.create(
                 category='Salary',
                 amount=1000,
+                date=datetime.strptime('05/24/2017', '%m/%d%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
         Income.objects.create(
                 category='Bonus',
                 amount=2000,
+                date=datetime.strptime('05/24/2017', '%m/%d%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
@@ -41,9 +43,16 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         second_saved_income = saved_incomes[1]
         self.assertEqual(first_saved_income.category, 'Salary')
         self.assertEqual(first_saved_income.amount, 1000)
+        self.assertEqual(
+                    first_saved_income.date,
+                    datetime.date(2017, 5, 24)
+        )
         self.assertEqual(first_saved_income.balance, balance)
         self.assertEqual(second_saved_income.category, 'Bonus')
         self.assertEqual(second_saved_income.amount, 2000)
+        self.assertEqual(
+                second_saved_income.date,
+                datetime.date(2017, 5, 24))
         self.assertEqual(second_saved_income.balance, balance)
 
     def test_saving_and_retrieving_expenses(self):
@@ -53,12 +62,14 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         Expense.objects.create(
                 category='Food',
                 amount=10,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(expense_added=True)
         Expense.objects.create(
                 category='Movie',
                 amount=20,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(expense_added=True)
@@ -71,9 +82,17 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         second_saved_expense = saved_expenses[1]
         self.assertEqual(first_saved_expense.category, 'Food')
         self.assertEqual(first_saved_expense.amount, 10)
+        self.assertEqual(
+                first_saved_expense.date,
+                datetime.date(2017, 5, 24)
+        )
         self.assertEqual(first_saved_expense.balance, balance)
         self.assertEqual(second_saved_expense.category, 'Movie')
         self.assertEqual(second_saved_expense.amount, 20)
+        self.assertEqual(
+                second_saved_expense.date,
+                datetime.date(2017, 5, 24)
+        )
         self.assertEqual(second_saved_expense.balance, balance)
 
 
@@ -91,12 +110,14 @@ class BalanceViewTest(TestCase):
         Expense.objects.create(
                 category='Food',
                 amount=10,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=correct_balance
                 )
         correct_balance.save(expense_added=True)
         Expense.objects.create(
                 category='Movie',
                 amount=20,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=correct_balance
                 )
         correct_balance.save(expense_added=True)
@@ -104,12 +125,14 @@ class BalanceViewTest(TestCase):
         Expense.objects.create(
                 category='Water',
                 amount=3,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=other_balance
                 )
         other_balance.save(expense_added=True)
         Expense.objects.create(
                 category='School',
                 amount=10,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=other_balance
                 )
         other_balance.save(expense_added=True)
@@ -118,10 +141,10 @@ class BalanceViewTest(TestCase):
                 f'/balance/{correct_balance.id}/expenses/'
                 )
 
-        self.assertContains(response, 'Food: 10')
-        self.assertContains(response, 'Movie: 20')
-        self.assertNotContains(response, 'Water: 3')
-        self.assertNotContains(response, 'School: 10')
+        self.assertContains(response, '24 May 2017 || Food: 10')
+        self.assertContains(response, '24 May 2017 || Movie: 20')
+        self.assertNotContains(response, '24 May 2017 || Water: 3')
+        self.assertNotContains(response, '24 May 2017 || School: 10')
 
     def test_balance_values_are_calculated_right(self):
         balance = Balance()
@@ -129,12 +152,14 @@ class BalanceViewTest(TestCase):
         Income.objects.create(
                 category='Salary',
                 amount=1000,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
         Income.objects.create(
                 category='Bonus',
                 amount=2000,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
@@ -148,12 +173,14 @@ class BalanceViewTest(TestCase):
         Expense.objects.create(
                 category='Food',
                 amount=100,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(expense_added=True)
         Expense.objects.create(
                 category='Present',
                 amount=200,
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(expense_added=True)
@@ -177,17 +204,20 @@ class NewBalanceTest(TestCase):
     def test_can_save_a_POST_request(self):
         self.client.post('/balance/new',  data={
             'income_category': 'Salary',
-            'income_amount': 1000
+            'income_amount': 1000,
+            'income_date': '05/24/2017'
             })
         self.assertEqual(Income.objects.count(), 1)
         new_income = Income.objects.first()
         self.assertEqual(new_income.category, 'Salary')
         self.assertEqual(new_income.amount, 1000)
+        self.assertEqual(new_income.date, datetime.date(2017, 5, 24))
 
     def test_can_save_account_balance_after_a_POST_request(self):
         self.client.post('/balance/new',  data={
             'income_category': 'Salary',
-            'income_amount': 1000
+            'income_amount': 1000,
+            'income_date': '05/24/2017'
             })
         self.assertEqual(Balance.objects.count(), 1)
         new_balance = Balance.objects.first()
@@ -198,7 +228,8 @@ class NewBalanceTest(TestCase):
     def test_redirects_after_POST(self):
         response = self.client.post('/balance/new', data={
             'income_category': 'Salary',
-            'income_amount': 1000
+            'income_amount': 1000,
+            'income_date': '05/24/2017'
             })
         self.assertEqual(response.status_code, 302)
         new_balance = Balance.objects.first()
@@ -216,13 +247,18 @@ class NewIncomeTest(TestCase):
 
         self.client.post(
                 f'/balance/{correct_balance.id}/income/',
-                data={'income_category': 'Salary', 'income_amount': 1000}
-                )
+                data={
+                    'income_category': 'Salary',
+                    'income_amount': 1000,
+                    'income_date': '05/24/2017'
+                }
+            )
 
         self.assertEqual(Income.objects.count(), 1)
         new_income = Income.objects.first()
         self.assertEqual(new_income.category, 'Salary')
         self.assertEqual(new_income.amount, 1000.00)
+        self.assertEqual(new_income.date, datetime.date(2017, 5, 24))
         self.assertEqual(new_income.balance, correct_balance)
         self.assertNotEqual(new_income.balance, other_balance)
 
@@ -232,8 +268,12 @@ class NewIncomeTest(TestCase):
 
         response = self.client.post(
                 f'/balance/{correct_balance.id}/income/',
-                data={'income_category': 'Salary', 'income_amount': 500.00}
-                )
+                data={
+                    'income_category': 'Salary',
+                    'income_amount': 500.00,
+                    'income_date': '05/24/2017'
+                }
+            )
 
         self.assertRedirects(
                 response,
@@ -249,13 +289,21 @@ class NewExpenseTest(TestCase):
 
         self.client.post(
                 f'/balance/{correct_balance.id}/expenses/',
-                data={'expense_category': 'Food', 'expense_amount': 10}
-                )
+                data={
+                    'expense_category': 'Food',
+                    'expense_amount': 10,
+                    'expense_date': '05/24/2017'
+                }
+            )
 
         self.assertEqual(Expense.objects.count(), 1)
         new_expense = Expense.objects.first()
         self.assertEqual(new_expense.category, 'Food')
         self.assertEqual(new_expense.amount, 10.00)
+        self.assertEqual(
+                new_expense.date,
+                datetime.date(2017, 5, 24)
+        )
         self.assertEqual(new_expense.balance, correct_balance)
         self.assertNotEqual(new_expense.balance, other_balance)
 
@@ -265,8 +313,12 @@ class NewExpenseTest(TestCase):
 
         response = self.client.post(
                 f'/balance/{correct_balance.id}/expenses/',
-                data={'expense_category': 'Food', 'expense_amount': 10.00}
-                )
+                data={
+                    'expense_category': 'Food',
+                    'expense_amount': 10.00,
+                    'expense_date': '05/24/2017'
+                }
+            )
 
         self.assertRedirects(
                 response,
