@@ -1,6 +1,6 @@
 from django.test import TestCase
 from personal_account.models import Income, Expense, Balance
-from datetime import datetime
+from datetime import datetime, date
 
 
 class HomePageTest(TestCase):
@@ -22,14 +22,14 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         Income.objects.create(
                 category='Salary',
                 amount=1000,
-                date=datetime.strptime('05/24/2017', '%m/%d%Y'),
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
         Income.objects.create(
                 category='Bonus',
                 amount=2000,
-                date=datetime.strptime('05/24/2017', '%m/%d%Y'),
+                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
                 balance=balance
                 )
         balance.save(income_added=True)
@@ -45,14 +45,16 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         self.assertEqual(first_saved_income.amount, 1000)
         self.assertEqual(
                     first_saved_income.date,
-                    datetime.date(2017, 5, 24)
+                    date(2017, 5, 24)
         )
         self.assertEqual(first_saved_income.balance, balance)
         self.assertEqual(second_saved_income.category, 'Bonus')
         self.assertEqual(second_saved_income.amount, 2000)
+        print(second_saved_income.date)
         self.assertEqual(
                 second_saved_income.date,
-                datetime.date(2017, 5, 24))
+                date(2017, 5, 24)
+        )
         self.assertEqual(second_saved_income.balance, balance)
 
     def test_saving_and_retrieving_expenses(self):
@@ -82,16 +84,17 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         second_saved_expense = saved_expenses[1]
         self.assertEqual(first_saved_expense.category, 'Food')
         self.assertEqual(first_saved_expense.amount, 10)
+        print(first_saved_expense.date)
         self.assertEqual(
-                first_saved_expense.date,
-                datetime.date(2017, 5, 24)
+                    first_saved_expense.date,
+                    date(2017, 5, 24)
         )
         self.assertEqual(first_saved_expense.balance, balance)
         self.assertEqual(second_saved_expense.category, 'Movie')
         self.assertEqual(second_saved_expense.amount, 20)
         self.assertEqual(
                 second_saved_expense.date,
-                datetime.date(2017, 5, 24)
+                date(2017, 5, 24)
         )
         self.assertEqual(second_saved_expense.balance, balance)
 
@@ -211,7 +214,7 @@ class NewBalanceTest(TestCase):
         new_income = Income.objects.first()
         self.assertEqual(new_income.category, 'Salary')
         self.assertEqual(new_income.amount, 1000)
-        self.assertEqual(new_income.date, datetime.date(2017, 5, 24))
+        self.assertEqual(new_income.date, date(2017, 5, 24))
 
     def test_can_save_account_balance_after_a_POST_request(self):
         self.client.post('/balance/new',  data={
@@ -258,7 +261,7 @@ class NewIncomeTest(TestCase):
         new_income = Income.objects.first()
         self.assertEqual(new_income.category, 'Salary')
         self.assertEqual(new_income.amount, 1000.00)
-        self.assertEqual(new_income.date, datetime.date(2017, 5, 24))
+        self.assertEqual(new_income.date, date(2017, 5, 24))
         self.assertEqual(new_income.balance, correct_balance)
         self.assertNotEqual(new_income.balance, other_balance)
 
@@ -302,7 +305,7 @@ class NewExpenseTest(TestCase):
         self.assertEqual(new_expense.amount, 10.00)
         self.assertEqual(
                 new_expense.date,
-                datetime.date(2017, 5, 24)
+                date(2017, 5, 24)
         )
         self.assertEqual(new_expense.balance, correct_balance)
         self.assertNotEqual(new_expense.balance, other_balance)
