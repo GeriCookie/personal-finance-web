@@ -15,6 +15,11 @@
                    type=number
                    step=0.01 
                    placeholder="amount" />
+            <input name="income_date"
+                   id="id_new_income_date"
+                   class="form-control input-lg"
+                   type=text
+                   placeholder="mm/dd/yyyy"/>
             <input id="id_new_income_button" 
                    class="btn btn-success"
                    type="submit">
@@ -23,7 +28,7 @@
         <ul id="id_income_list" class="list list-balances">
             {% for income in balance.income_set.all %}
             <li class="list-item">
-                {{ income.category }}: {{ income.amount }}
+                {{ income.date|date:"d M Y" }} || {{ income.category }}: {{ income.amount }}
             </li>
             {% endfor %}
         </ul>

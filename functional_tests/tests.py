@@ -215,7 +215,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
         income_amountbox.send_keys(1000)
-        income_date('05/24/2017')
+        income_date.send_keys('05/24/2017')
         # When she hits the "Add income" button, the page updates,
         # and now the page lists:
         income_button = self.browser.find_element_by_id('id_new_income_button')
@@ -303,7 +303,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 )
         category_inputbox.send_keys('Salary')
         amount_inputbox.send_keys(1000)
-        date_inputbox('05/24/2017')
+        date_inputbox.send_keys('05/24/2017')
         button.click()
         self.wait_for_li_in_ul(
                 'id_income_list',

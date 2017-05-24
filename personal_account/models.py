@@ -1,5 +1,6 @@
 from django.db import models
 from decimal import Decimal
+import datetime
 
 
 class Balance(models.Model):
@@ -44,6 +45,7 @@ class Income(models.Model):
             decimal_places=2,
             default=Decimal('0.00')
             )
+    date = models.DateField(default=datetime.date.today)
 
 
 class Expense(models.Model):
@@ -58,3 +60,4 @@ class Expense(models.Model):
             decimal_places=2,
             default=Decimal('0.00')
             )
+    date = models.DateField(default=datetime.date.today)

@@ -14,6 +14,11 @@
                    class="form-control input-lg"
                    type=number
                    placeholder="amount" />
+            <input name="expense_date"
+                   id="id_new_expense_date"
+                   class="form-control input-lg"
+                   type=text
+                   placeholder="mm/dd/yyyy"/>
             <input id="id_new_expense_button" 
                    class="btn btn-success"
                    type="submit">
@@ -21,7 +26,7 @@
         </form>
         <ul id="id_expenses_list" class="list list-balances">
             {% for expense in balance.expense_set.all %}
-            <li class="list-item">{{ expense.category }}: {{ expense.amount }}</li>
+            <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category }}: {{ expense.amount }}</li>
             {% endfor %}
         </ul>
         <h1 class="text-center">Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
