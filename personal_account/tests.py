@@ -363,10 +363,10 @@ class ExpensesByDayView(TestCase):
         correct_balance.save(expense_added=True)
         today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
         response = self.client.get(
-                f'/balance/{correct_balance.id}/expenses/{today_str}'
+                f'/balance/{correct_balance.id}/expenses/{today_str}/'
                 )
         today_str_view = datetime.strftime(datetime.today(), '%d %b %Y')
         self.assertContains(response, f'{today_str_view} || Food: 10')
         self.assertContains(response, f'{today_str_view} || Movie: 20')
-        self.assertNotContains(response, f'{today_str_view} || Water: 3')
-        self.assertNotContains(response, f'{today_str_view} || School: 10')
+        self.assertContains(response, f'{today_str_view} || Water: 3')
+        self.assertContains(response, f'{today_str_view} || School: 10')

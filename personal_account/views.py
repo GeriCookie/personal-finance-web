@@ -1,6 +1,6 @@
 from django.shortcuts import redirect, render
 from personal_account.models import Income, Expense, Balance
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def home_page(request):
@@ -11,6 +11,7 @@ def view_balance(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     return render(request, 'balance.html', {
         'balance': balance,
+        'count': 5
     })
 
 
@@ -51,6 +52,8 @@ def income(request, balance_id):
 
 def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
+    days = {}
+    days['today'] = datetime.strftime(datetime.today(), '%Y-%m-%d')
     if request.method == 'POST':
         category = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
@@ -64,5 +67,20 @@ def expenses(request, balance_id):
         balance.save(expense_added=True)
         return redirect(f'/balance/{balance.id}/expenses/')
     return render(request, 'expenses.html', {
-            'balance': balance
+            'balance': balance,
+            'days': days
         })
+
+
+def daily_expenses(request, balance_id, date):
+    balance = Balance.objects.get(id=balance_id)
+    date = datetime.strptime(date, '%Y-%m-%d')
+    expenses = balance.expense_set.filter(date=date)
+    days = {}
+    days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
+    days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
+    return render(request, 'expenses_daily.html', {
+        'balance': balance,
+        'expenses': expenses,
+        'days': days
+    })

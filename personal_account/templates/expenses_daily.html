@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block header_text %}Your Expenses{% endblock %}
+{% block header2_text %}Enter expense{% endblock %}
+{% block content %}
+<a href="/balance/{{ balance.id }}/expenses/{{ days.prev_day }}/"
+   id="id_prev_day" class="btn btn-success">Previous day</a>
+<a href="/balance/{{ balance.id }}/expenses/{{ days.next_day }}/"
+   id="id_next_day" class="btn btn-success">Next day</a>
+<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+        <ul id="id_expenses_list" class="list list-balances">
+            {% for expense in expenses %}
+            <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category }}: {{ expense.amount }}</li>
+            {% endfor %}
+        </ul>
+        <h1 class="text-center">Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
+{% endblock %}
