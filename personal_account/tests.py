@@ -327,3 +327,46 @@ class NewExpenseTest(TestCase):
                 response,
                 f'/balance/{correct_balance.id}/expenses/'
                 )
+
+
+class ExpensesByDayView(TestCase):
+
+    def test_expenses_daily_view(self):
+        correct_balance = Balance.objects.create()
+        Expense.objects.create(
+                category='Food',
+                amount=10,
+                date=datetime.today(),
+                balance=correct_balance
+                )
+        correct_balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Movie',
+                amount=20,
+                date=datetime.today(),
+                balance=correct_balance
+                )
+        correct_balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Water',
+                amount=3,
+                date=datetime.today(),
+                balance=correct_balance
+                )
+        correct_balance.save(expense_added=True)
+        Expense.objects.create(
+                category='School',
+                amount=10,
+                date=datetime.today(),
+                balance=correct_balance
+                )
+        correct_balance.save(expense_added=True)
+        today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
+        response = self.client.get(
+                f'/balance/{correct_balance.id}/expenses/{today_str}'
+                )
+        today_str_view = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.assertContains(response, f'{today_str_view} || Food: 10')
+        self.assertContains(response, f'{today_str_view} || Movie: 20')
+        self.assertNotContains(response, f'{today_str_view} || Water: 3')
+        self.assertNotContains(response, f'{today_str_view} || School: 10')
