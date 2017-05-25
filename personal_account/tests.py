@@ -1,6 +1,6 @@
 from django.test import TestCase
 from personal_account.models import Income, Expense, Balance
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 
 class HomePageTest(TestCase):
@@ -370,3 +370,48 @@ class ExpensesByDayView(TestCase):
         self.assertContains(response, f'{today_str_view} || Movie: 20')
         self.assertContains(response, f'{today_str_view} || Water: 3')
         self.assertContains(response, f'{today_str_view} || School: 10')
+
+    def test_expenses_weekly_view(self):
+        balance = Balance.objects.create()
+        prev_week_day = datetime.today() - timedelta(days=7)
+        Expense.objects.create(
+                category='Food',
+                amount=10,
+                date=prev_week_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Movie',
+                amount=20,
+                date=prev_week_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Water',
+                amount=3,
+                date=prev_week_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='School',
+                amount=10,
+                date=prev_week_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        start_week = prev_week_day - timedelta(days=prev_week_day.weekday())
+        end_week = start_week + timedelta(days=6)
+        start_week_str = datetime.strftime(start_week, '%Y-%m-%d')
+        end_week_str = datetime.strftime(end_week, '%Y-%m-%d')
+        response = self.client.get(
+            f'/balance/{balance.id}/expenses/{start_week_str}/{end_week_str}/'
+                )
+        prev_week_day_str_view = datetime.strftime(prev_week_day, '%d %b %Y')
+        self.assertContains(response, f'{prev_week_day_str_view} || Food: 10')
+        self.assertContains(response, f'{prev_week_day_str_view} || Movie: 20')
+        self.assertContains(response, f'{prev_week_day_str_view} || Water: 3')
+        self.assertContains(
+                response, f'{prev_week_day_str_view} || School: 10')

@@ -4,6 +4,8 @@
 {% block content %}
 <a href="/balance/{{ balance.id }}/expenses/{{ days.today }}/"
    id="id_daily_expenses" class="btn btn-success">Daily expenses</a>
+<a href="/balance/{{ balance.id }}/expenses/{{ days.start_week }}/{{ days.end_week}}/"
+   id="id_weekly_expenses" class="btn btn-success">Weekly expenses</a>
 <a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
         <form method="POST" action="/balance/{{ balance.id }}/expenses/"
             class="form-inline text-center">

@@ -55,6 +55,10 @@ def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     days = {}
     days['today'] = datetime.strftime(datetime.today(), '%Y-%m-%d')
+    start_week = datetime.today() - timedelta(days=datetime.today().weekday())
+    end_week = start_week + timedelta(days=6)
+    days['start_week'] = datetime.strftime(start_week, '%Y-%m-%d')
+    days['end_week'] = datetime.strftime(end_week, '%Y-%m-%d')
     if request.method == 'POST':
         category = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
@@ -79,9 +83,44 @@ def daily_expenses(request, balance_id, date):
     expenses = balance.expense_set.filter(date=date)
     total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
     days = {}
+    days['current_day'] = datetime.strftime(date, '%d %b %Y')
     days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
     days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
     return render(request, 'expenses_daily.html', {
+        'balance': balance,
+        'expenses': expenses,
+        'days': days,
+        'total_expenses': total_expenses
+    })
+
+
+def weekly_expenses(request, balance_id, start_date, end_date):
+    balance = Balance.objects.get(id=balance_id)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    expenses = balance.expense_set.filter(date__range=[start_date, end_date])
+    total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
+    days = {}
+
+    days['current_week_start'] = datetime.strftime(
+            start_date, '%d %b %Y'
+    )
+    days['current_week_end'] = datetime.strftime(
+            end_date, '%d %b %Y'
+    )
+    days['prev_week_end'] = datetime.strftime(
+            start_date - timedelta(days=1), '%Y-%m-%d'
+    )
+    days['prev_week_start'] = datetime.strftime(
+            start_date - timedelta(days=7), '%Y-%m-%d'
+    )
+    days['next_week_start'] = datetime.strftime(
+            end_date + timedelta(days=1), '%Y-%m-%d'
+    )
+    days['next_week_end'] = datetime.strftime(
+            end_date + timedelta(days=7), '%Y-%m-%d'
+    )
+    return render(request, 'expenses_weekly.html', {
         'balance': balance,
         'expenses': expenses,
         'days': days,

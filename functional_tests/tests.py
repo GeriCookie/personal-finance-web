@@ -3,8 +3,12 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 import time
 from datetime import datetime, timedelta
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
-MAX_WAIT = 10
+MAX_WAIT = 20000000
 
 
 class NewVisitorTest(StaticLiveServerTestCase):
@@ -28,16 +32,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def wait_for_element_on_page(self, element_id):
-        start_time = time.time()
-        while True:
-            try:
-                element = self.browser.find_element_by_id(element_id)
-                return element
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
+    def wait_for_element_on_page(self, element_id, timeout=10):
+        wait = WebDriverWait(self.browser, timeout)
+        wait.until(EC.element_to_be_clickable((By.ID, element_id)))
+        return self.browser.find_element_by_id(element_id)
 
     def test_can_start_a_personal_account_and_retrieve_it_later(self):
         # Cookie has heard about a cool new online personal finance app.
@@ -551,17 +549,22 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_expenses_list',
                 f'{today_str} || Food: 10.00'
         )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "10.00"
                 )
         prev_day_button = self.browser.find_element_by_id('id_prev_day')
-        prev_day_button.click()
-        day = self.wait_for_element_on_page('id_day')
+        prev_day_button.send_keys(Keys.ENTER)
         yesterday_str = datetime.strftime(
                 datetime.today() - timedelta(days=1), '%d %b %Y'
         )
+        day = self.wait_for_element_on_page('id_day')
+        print(yesterday_str)
+        print(day.text)
+        day = self.browser.find_element_by_id('id_day')
         self.assertEqual(day.text, yesterday_str)
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
         self.wait_for_li_in_ul(
                 'id_expenses_list',
                 f'{yesterday_str} || Movie: 20.00')
@@ -570,7 +573,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 "20.00"
                 )
         # button for week view
-        week_view_btn = self.browser.find_element_by_id('id_week_expenses')
+        expense_button = self.wait_for_element_on_page(
+                'id_add_new_expense'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        expense_button.click()
+        week_view_btn = self.wait_for_element_on_page('id_weekly_expenses')
         week_view_btn.click()
         week = self.wait_for_element_on_page('id_week')
         today = datetime.today()
@@ -589,6 +598,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.wait_for_li_in_ul(
                 'id_expenses_list',
                 f'{yesterday_str} || Movie: 20.00')
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "30.00"
@@ -609,7 +619,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_expenses_list',
                 f'{prev_week_day_str} || Books: 20.00')
 
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "20.00"
@@ -630,13 +640,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Total expenses: 30, and Account balance: 970
         self.assertEqual(
                 total_balance.text,
-                "970.00"
+                "930.00"
                 )
 
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "30.00"
+                "70.00"
                 )
 
         # Cookie wonderss whether the site will remember her list.
