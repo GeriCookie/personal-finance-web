@@ -1,6 +1,7 @@
 from django.shortcuts import redirect, render
 from personal_account.models import Income, Expense, Balance
 from datetime import datetime, timedelta
+from django.db.models import F, Sum
 
 
 def home_page(request):
@@ -76,11 +77,13 @@ def daily_expenses(request, balance_id, date):
     balance = Balance.objects.get(id=balance_id)
     date = datetime.strptime(date, '%Y-%m-%d')
     expenses = balance.expense_set.filter(date=date)
+    total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
     days = {}
     days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
     days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
     return render(request, 'expenses_daily.html', {
         'balance': balance,
         'expenses': expenses,
-        'days': days
+        'days': days,
+        'total_expenses': total_expenses
     })

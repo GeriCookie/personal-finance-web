@@ -6,11 +6,14 @@
    id="id_prev_day" class="btn btn-success">Previous day</a>
 <a href="/balance/{{ balance.id }}/expenses/{{ days.next_day }}/"
    id="id_next_day" class="btn btn-success">Next day</a>
+<a href="/balance/{{ balance.id }}/expenses/"
+   id="id_add_new_expense" class="btn btn-success">Add Exoense</a>
 <a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
         <ul id="id_expenses_list" class="list list-balances">
             {% for expense in expenses %}
             <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category }}: {{ expense.amount }}</li>
             {% endfor %}
         </ul>
-        <h1 class="text-center">Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
+        <h1 class="text-center">Total expenses: <span id="id_total_expenses">
+                {{ total_expenses.total_expenses }} </span></h1>
 {% endblock %}
