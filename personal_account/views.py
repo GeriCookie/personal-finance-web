@@ -73,6 +73,10 @@ def expenses(request, balance_id):
     )
     days['start_month'] = datetime.strftime(start_month_date, '%Y-%m-%d')
     days['end_month'] = datetime.strftime(end_month_date, '%Y-%m-%d')
+    start_year = new_date(datetime.today().year, 1, 1)
+    end_year = new_date(datetime.today().year, 12, 31)
+    days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
+    days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
     if request.method == 'POST':
         category = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
@@ -177,6 +181,42 @@ def montly_expenses(request, balance_id, start_date, end_date):
             end_date + timedelta(days=next_month_days[1]), '%Y-%m-%d'
     )
     return render(request, 'expenses_monthly.html', {
+        'balance': balance,
+        'expenses': expenses,
+        'days': days,
+        'total_expenses': total_expenses
+    })
+
+
+def yearly_expenses(request, balance_id, start_date, end_date):
+    balance = Balance.objects.get(id=balance_id)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    expenses = balance.expense_set.filter(date__range=[start_date, end_date])
+    total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
+    days = {}
+
+    days['current_year_start'] = datetime.strftime(
+            start_date, '%d %b %Y'
+    )
+    days['current_year_end'] = datetime.strftime(
+            end_date, '%d %b %Y'
+    )
+    prev_year_end_date = start_date - timedelta(days=1)
+    days['prev_year_end'] = datetime.strftime(
+            prev_year_end_date, '%Y-%m-%d'
+    )
+    days['prev_year_start'] = datetime.strftime(
+            new_date(prev_year_end_date.year, 1, 1), '%Y-%m-%d'
+    )
+    next_year_start_date = end_date + timedelta(days=1)
+    days['next_year_start'] = datetime.strftime(
+            next_year_start_date, '%Y-%m-%d'
+    )
+    days['next_year_end'] = datetime.strftime(
+            new_date(next_year_start_date.year, 12, 31), '%Y-%m-%d'
+    )
+    return render(request, 'expenses_yearly.html', {
         'balance': balance,
         'expenses': expenses,
         'days': days,

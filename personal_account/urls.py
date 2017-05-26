@@ -20,4 +20,8 @@ urlpatterns = [
         r'^(?P<balance_id>\d+)/expenses/m/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})/$',
         views.montly_expenses,
         name='montly_expenses'),
+    url(
+        r'^(?P<balance_id>\d+)/expenses/y/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})/$',
+        views.yearly_expenses,
+        name='yearly_expenses'),
 ]
