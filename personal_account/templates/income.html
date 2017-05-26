@@ -3,7 +3,7 @@
 {% block header2_text %}Enter income{% endblock %}
 {% block content %}
 <a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
-<form method="POST" action="/balance/{{ balance.id }}/add_income/" 
+<form method="POST" action="/balance/{{ balance.id }}/income/" 
             class="form-inline text-center">
             <input name="income_category" 
                    id="id_new_income_category" 

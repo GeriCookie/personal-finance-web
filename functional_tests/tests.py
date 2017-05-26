@@ -976,7 +976,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.wait_for_li_in_ul(
                 'id_income_list',
                 f'{prev_month_str} || Clothes: 20.00')
-        total_incomes = self.browser.find_element_by_id('id_total_incomes')
+        total_incomes = self.browser.find_element_by_id('id_total_income')
         self.assertEqual(
                 total_incomes.text,
                 "1070.00"
