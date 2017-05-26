@@ -33,13 +33,21 @@ class Balance(models.Model):
         super(Balance, self).save(*args, **kwargs)
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=300, unique=True)
+
+
 class Income(models.Model):
     balance = models.ForeignKey(
             Balance,
             default=None,
             on_delete=models.CASCADE
         )
-    category = models.TextField(default='')
+    category = models.ForeignKey(
+            Category,
+            default=None,
+            on_delete=models.CASCADE
+        )
     amount = models.DecimalField(
             max_digits=19,
             decimal_places=2,
@@ -54,7 +62,11 @@ class Expense(models.Model):
             default=None,
             on_delete=models.CASCADE
         )
-    category = models.TextField(default='')
+    category = models.ForeignKey(
+            Category,
+            default=None,
+            on_delete=models.CASCADE
+        )
     amount = models.DecimalField(
             max_digits=19,
             decimal_places=2,
