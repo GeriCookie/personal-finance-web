@@ -790,3 +790,454 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # She visits that URL - her personal finance balance is still there.
         # Satisfied, she goes back to sleep
+
+    def test_user_check_incomes_on_daily_week_month_and_year_basis(self):
+
+        self.browser.get(self.live_server_url)
+
+        # She notices the page title and header mentioned personal finance
+
+        # She is invited to enter her income amount and category straight away
+        income_inputbox = self.browser.find_element_by_id(
+                'id_new_income_category'
+                )
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        # She types "Salary" and 1000 into a text box
+        income_inputbox.send_keys('Salary')
+        income_amountbox.send_keys(1000)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        income_date.send_keys(today)
+        # When she hits the "Add income" button, the page updates,
+        # and now the page lists:
+        income_button = self.browser.find_element_by_id('id_new_income_button')
+        income_button.click()
+        # "Salary: 1000"
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                    'id_income_list',
+                    f'{today_str} || Salary: 1000.00'
+        )
+
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                'id_total_balance_button'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        self.assertEqual(
+                total_balance.text,
+                '1000.00'
+                )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                '1000.00'
+                )
+        # She sees that her total expenses are 0.00
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                '0.00'
+                )
+        # She sees the Add new expense button and click it:
+        add_incomes_button = self.browser.find_element_by_id(
+                'id_add_new_income'
+                )
+        add_incomes_button.click()
+        # She is invited to enter her expenses amount and category
+        income_inputbox = self.wait_for_element_on_page(
+                'id_new_income_category'
+                )
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+
+        income_inputbox.send_keys("Food")
+        income_amountbox.send_keys(10)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        income_date.send_keys(today)
+        income_button = self.browser.find_element_by_id(
+                'id_new_income_button'
+                )
+        income_button.click()
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        # "Food: 10", "Total expences: 10"
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00'
+        )
+        total_incomes = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_incomes.text,
+                "1010.00"
+                )
+
+        # There is still a text box inviting her to add another expense.
+        # She enters "Movie" and 20
+
+        income_inputbox = self.wait_for_element_on_page(
+                'id_new_income_category'
+                )
+
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        income_inputbox.send_keys("Movie")
+        income_amountbox.send_keys(20)
+        yesterday = datetime.strftime(
+                datetime.today() - timedelta(days=1), '%m/%d/%Y'
+        )
+        income_date.send_keys(yesterday)
+        income_button = self.browser.find_element_by_id(
+                'id_new_income_button'
+                )
+        income_button.click()
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        yesterday_str = datetime.strftime(
+                datetime.today() - timedelta(days=1), '%d %b %Y'
+        )
+        # The page updates again, and now shows both expenses,
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00'
+        )
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{yesterday_str} || Movie: 20.00')
+        # Add some expenses from prev week
+
+        total_incomes = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_incomes.text,
+                "1030.00"
+                )
+
+        income_inputbox = self.wait_for_element_on_page(
+                'id_new_income_category'
+                )
+
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        income_inputbox.send_keys("Books")
+        income_amountbox.send_keys(20)
+        prev_week_day = datetime.strftime(
+                datetime.today() - timedelta(days=6), '%m/%d/%Y')
+        income_date.send_keys(prev_week_day)
+        income_button = self.browser.find_element_by_id(
+                'id_new_income_button'
+                )
+        income_button.click()
+        prev_week_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=6), '%d %b %Y'
+        )
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_week_day_str} || Books: 20.00')
+
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1050.00"
+                )
+        income_inputbox = self.wait_for_element_on_page(
+                'id_new_income_category'
+                )
+
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        income_inputbox.send_keys("Clothes")
+        income_amountbox.send_keys(20)
+        prev_month = datetime.strftime(
+                datetime.today() - timedelta(30), '%m/%d/%Y'
+        )
+        income_date.send_keys(prev_month)
+
+        income_button = self.browser.find_element_by_id(
+                'id_new_income_button'
+                )
+        income_button.click()
+        prev_month_str = datetime.strftime(
+                datetime.today() - timedelta(30), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_month_str} || Clothes: 20.00')
+        total_incomes = self.browser.find_element_by_id('id_total_incomes')
+        self.assertEqual(
+                total_incomes.text,
+                "1070.00"
+                )
+        # Button for dayly view]
+        daily_view_button = self.browser.find_element_by_id(
+                                            'id_daily_income'
+                                            )
+        # dayly view
+        daily_view_button.click()
+        day = self.wait_for_element_on_page('id_day')
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.assertEqual(day.text, today_str)
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00'
+        )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1010.00"
+                )
+        prev_day_button = self.browser.find_element_by_id('id_prev_day')
+        prev_day_button.send_keys(Keys.ENTER)
+        yesterday_str = datetime.strftime(
+                datetime.today() - timedelta(days=1), '%d %b %Y'
+        )
+        day = self.wait_for_element_on_page('id_day')
+        day = self.browser.find_element_by_id('id_day')
+        self.assertEqual(day.text, yesterday_str)
+        total_income = self.wait_for_element_on_page('id_total_income')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{yesterday_str} || Movie: 20.00')
+        self.assertEqual(
+                total_income.text,
+                "20.00"
+                )
+        # button for week view
+        income_button = self.wait_for_element_on_page(
+                'id_add_new_income'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        income_button.click()
+        week_view_btn = self.wait_for_element_on_page('id_weekly_income')
+        week_view_btn.click()
+        week = self.wait_for_element_on_page('id_week')
+        today = datetime.today()
+        start_week = today - timedelta(days=today.weekday())
+        end_week = start_week + timedelta(days=6)
+        start_week_str = datetime.strftime(start_week, '%d %b %Y')
+        end_week_str = datetime.strftime(end_week, '%d %b %Y')
+        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        yesterday_str = datetime.strftime(
+                datetime.today() - timedelta(days=1), '%d %b %Y'
+        )
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{yesterday_str} || Movie: 20.00')
+        total_income = self.wait_for_element_on_page('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1030.00"
+                )
+        prev_week_btn = self.browser.find_element_by_id("id_prev_week")
+        prev_week_btn.click()
+        end_prev_week = start_week - timedelta(days=1)
+        start_prev_week = end_prev_week - timedelta(days=6)
+        week = self.wait_for_element_on_page('id_week')
+        start_week_str = datetime.strftime(start_prev_week, '%d %b %Y')
+        end_week_str = datetime.strftime(end_prev_week, '%d %b %Y')
+        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
+
+        prev_week_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=6), '%d %b %Y'
+        )
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_week_day_str} || Books: 20.00')
+
+        total_income = self.wait_for_element_on_page('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "20.00"
+                )
+        # month view
+        income_button = self.wait_for_element_on_page(
+                'id_add_new_income'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        income_button.click()
+        monthly_income_btn = self.wait_for_element_on_page(
+                'id_montly_income')
+        monthly_income_btn.click()
+        monthdays = monthrange(datetime.today().year, datetime.today().month)
+        start_month_date = date(
+                datetime.today().year, datetime.today().month, 1)
+        start_month = datetime.strftime(start_month_date, '%d %b %Y')
+        end_month_date = date(
+                datetime.today().year, datetime.today().month, monthdays[1])
+        end_month = datetime.strftime(end_month_date, '%d %b %Y')
+
+        month = self.wait_for_element_on_page('id_month')
+        self.assertEqual(month.text, f'{start_month} - {end_month}')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Salary: 1000.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{yesterday_str} || Movie: 20.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_week_day_str} || Books: 20.00')
+
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1050.00"
+                )
+        prev_month_button = self.wait_for_element_on_page('id_prev_month')
+        prev_month_button.click()
+
+        monthdays = monthrange(
+                datetime.today().year, datetime.today().month - 1)
+        start_month_date = date(
+                datetime.today().year, datetime.today().month - 1, 1)
+        start_prev_month = datetime.strftime(start_month_date, '%d %b %Y')
+        end_month_date = date(
+                datetime.today().year, datetime.today().month-1, monthdays[1])
+        end_prev_month = datetime.strftime(end_month_date, '%d %b %Y')
+
+        month = self.wait_for_element_on_page('id_month')
+        self.assertEqual(month.text, f'{start_prev_month} - {end_prev_month}')
+
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_month_str} || Clothes: 20.00')
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "20.00"
+                )
+        income_button = self.wait_for_element_on_page(
+                'id_add_new_income'
+                )
+
+        income_button.click()
+        income_inputbox = self.wait_for_element_on_page(
+                'id_new_income_category'
+                )
+
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        income_inputbox.send_keys("Books")
+        income_amountbox.send_keys(30)
+        prev_year = datetime.strftime(
+                datetime.today() - timedelta(365), '%m/%d/%Y'
+        )
+        income_date.send_keys(prev_year)
+        income_button = self.browser.find_element_by_id(
+                'id_new_income_button'
+                )
+        income_button.click()
+        prev_year_str = datetime.strftime(
+                datetime.today() - timedelta(365), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_year_str} || Books: 30.00')
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1100.00"
+                )
+        yearly_income_btn = self.wait_for_element_on_page(
+                'id_yearly_income')
+        yearly_income_btn.click()
+        year = self.wait_for_element_on_page('id_year')
+        current_year_start = date(datetime.today().year, 1, 1)
+        current_year_end = date(datetime.today().year, 12, 31)
+        current_year_start_str = datetime.strftime(
+                current_year_start, '%d %b %Y')
+        current_year_end_str = datetime.strftime(current_year_end, '%d %b %Y')
+        self.assertEqual(
+                year.text,
+                f'{current_year_start_str} - {current_year_end_str}')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Salary: 10.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{today_str} || Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{yesterday_str} || Movie: 20.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_week_day_str} || Books: 20.00')
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_month_str} || Clothes: 20.00')
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "1070.00"
+                )
+        prev_year_btn = self.wait_for_element_on_page('id_prev_year')
+        prev_year_btn.click()
+        year = self.wait_for_element_on_page('id_year')
+        prev_year_start = date(datetime.today().year - 1, 1, 1)
+        prev_year_end = date(datetime.today().year - 1, 12, 31)
+        prev_year_start_str = datetime.strftime(prev_year_start, '%d %b %Y')
+        prev_year_end_str = datetime.strftime(prev_year_end, '%d %b %Y')
+        self.assertEqual(
+                year.text,
+                f'{prev_year_start_str} - {prev_year_end_str}')
+        # button for year view
+        self.wait_for_li_in_ul(
+                'id_income_list',
+                f'{prev_year_str} || Books: 30.00')
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                "30.00"
+                )
+        # year view
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                'id_total_balance_button'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        # Total expenses: 30, and Account balance: 970
+        self.assertEqual(
+                total_balance.text,
+                "1100.00"
+                )
+
+        total_income = self.wait_for_element_on_page('id_total_income')
+        # Total expenses: 30, and Account balance: 970
+        self.assertEqual(
+                total_income.text,
+                "1100.00"
+                )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "0.00"
+                )
