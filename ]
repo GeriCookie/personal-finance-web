@@ -1,7 +1,6 @@
 from django.shortcuts import redirect, render
 from personal_account.models import Income, Expense, Balance
-from datetime import datetime, timedelta
-from datetime import date as new_date
+from datetime import datetime, timedelta, date
 from django.db.models import F, Sum
 from calendar import monthrange
 
@@ -61,18 +60,12 @@ def expenses(request, balance_id):
     end_week = start_week + timedelta(days=6)
     days['start_week'] = datetime.strftime(start_week, '%Y-%m-%d')
     days['end_week'] = datetime.strftime(end_week, '%Y-%m-%d')
-    monthdays = monthrange(datetime.today().year, datetime.today().month)
-    start_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            1)
-    end_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            monthdays[1]
-    )
+    start_month_date = date(
+            datetime.today().year, datetime.today().month, 1)
+    end_month_date = date(
+            datetime.today().year, datetime.today().month, monthdays[1])
     days['start_month'] = datetime.strftime(start_month_date, '%Y-%m-%d')
-    days['end_month'] = datetime.strftime(end_month_date, '%Y-%m-%d')
+    days['end_month'] = datetime.strftime(end_month_date, '%y-%m-%d')
     if request.method == 'POST':
         category = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
@@ -176,7 +169,7 @@ def montly_expenses(request, balance_id, start_date, end_date):
     days['next_month_end'] = datetime.strftime(
             end_date + timedelta(days=next_month_days[1]), '%Y-%m-%d'
     )
-    return render(request, 'expenses_monthly.html', {
+    return render(request, 'expenses_weekly.html', {
         'balance': balance,
         'expenses': expenses,
         'days': days,

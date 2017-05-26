@@ -2,13 +2,14 @@ from selenium.common.exceptions import WebDriverException
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from calendar import monthrange
 
-MAX_WAIT = 20000000
+MAX_WAIT = 10
 
 
 class NewVisitorTest(StaticLiveServerTestCase):
@@ -560,8 +561,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 datetime.today() - timedelta(days=1), '%d %b %Y'
         )
         day = self.wait_for_element_on_page('id_day')
-        print(yesterday_str)
-        print(day.text)
         day = self.browser.find_element_by_id('id_day')
         self.assertEqual(day.text, yesterday_str)
         total_expenses = self.wait_for_element_on_page('id_total_expenses')
@@ -624,9 +623,63 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
-        # week view
-        # button for month view
         # month view
+        expense_button = self.wait_for_element_on_page(
+                'id_add_new_expense'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        expense_button.click()
+        monthly_expenses_btn = self.wait_for_element_on_page('id_montly_expenses')
+        monthly_expenses_btn.click()
+        monthdays = monthrange(datetime.today().year, datetime.today().month)
+        start_month_date = date(
+                datetime.today().year, datetime.today().month, 1)
+        start_month = datetime.strftime(start_month_date, '%d %b %Y')
+        end_month_date = date(
+                datetime.today().year, datetime.today().month, monthdays[1])
+        end_month = datetime.strftime(end_month_date, '%d %b %Y')
+
+        month = self.wait_for_element_on_page('id_month')
+        self.assertEqual(month.text, f'{start_month} - {end_month}')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{today_str} || Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{yesterday_str} || Movie: 20.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_week_day_str} || Books: 20.00')
+
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "50.00"
+                )
+        prev_month_button = self.wait_for_element_on_page('id_prev_month')
+        prev_month_button.click()
+
+        monthdays = monthrange(
+                datetime.today().year, datetime.today().month - 1)
+        start_month_date = date(
+                datetime.today().year, datetime.today().month - 1, 1)
+        start_prev_month = datetime.strftime(start_month_date, '%d %b %Y')
+        end_month_date = date(
+                datetime.today().year, datetime.today().month-1, monthdays[1])
+        end_prev_month = datetime.strftime(end_month_date, '%d %b %Y')
+
+        month = self.wait_for_element_on_page('id_month')
+        self.assertEqual(month.text, f'{start_prev_month} - {end_prev_month}')
+
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_month_str} || Clothes: 20.00')
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "20.00"
+                )
         # button for year view
         # year view
         # She sees a button that tells her "Go to total balance"

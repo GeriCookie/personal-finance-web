@@ -1,6 +1,7 @@
 from django.test import TestCase
 from personal_account.models import Income, Expense, Balance
 from datetime import datetime, date, timedelta
+from calendar import monthrange
 
 
 class HomePageTest(TestCase):
@@ -415,3 +416,53 @@ class ExpensesByDayView(TestCase):
         self.assertContains(response, f'{prev_week_day_str_view} || Water: 3')
         self.assertContains(
                 response, f'{prev_week_day_str_view} || School: 10')
+
+    def test_expenses_monthly_view(self):
+        balance = Balance.objects.create()
+        prev_month_day = datetime.today() - timedelta(days=30)
+        Expense.objects.create(
+                category='Food',
+                amount=10,
+                date=prev_month_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Movie',
+                amount=20,
+                date=prev_month_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='Water',
+                amount=3,
+                date=prev_month_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        Expense.objects.create(
+                category='School',
+                amount=10,
+                date=prev_month_day,
+                balance=balance
+                )
+        balance.save(expense_added=True)
+        monthdays = monthrange(
+                prev_month_day.year, prev_month_day.month)
+        start_month_date = date(
+                prev_month_day.year, prev_month_day.month, 1)
+        start_prev_m = datetime.strftime(start_month_date, '%Y-%m-%d')
+        end_month_date = date(
+                prev_month_day.year, prev_month_day.month, monthdays[1])
+        end_prev_m = datetime.strftime(end_month_date, '%Y-%m-%d')
+        response = self.client.get(
+            f'/balance/{balance.id}/expenses/m/{start_prev_m}/{end_prev_m}/'
+                )
+        prev_month_day_str_view = datetime.strftime(prev_month_day, '%d %b %Y')
+        self.assertContains(response, f'{prev_month_day_str_view} || Food: 10')
+        self.assertContains(
+                response, f'{prev_month_day_str_view} || Movie: 20')
+        self.assertContains(response, f'{prev_month_day_str_view} || Water: 3')
+        self.assertContains(
+                response, f'{prev_month_day_str_view} || School: 10')
