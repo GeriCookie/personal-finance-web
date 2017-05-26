@@ -127,6 +127,48 @@ def weekly_income(request, balance_id, start_date, end_date):
     })
 
 
+def montly_income(request, balance_id, start_date, end_date):
+    balance = Balance.objects.get(id=balance_id)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    incomes = balance.income_set.filter(date__range=[start_date, end_date])
+    total_income = incomes.aggregate(total_income=Sum(F('amount')))
+    days = {}
+
+    days['current_month_start'] = datetime.strftime(
+            start_date, '%d %b %Y'
+    )
+    days['current_month_end'] = datetime.strftime(
+            end_date, '%d %b %Y'
+    )
+    prev_month_end_date = start_date - timedelta(days=1)
+    days['prev_month_end'] = datetime.strftime(
+            prev_month_end_date, '%Y-%m-%d'
+    )
+    prev_month_days = monthrange(
+            prev_month_end_date.year,
+            prev_month_end_date.month)
+    days['prev_month_start'] = datetime.strftime(
+            start_date - timedelta(days=prev_month_days[1]), '%Y-%m-%d'
+    )
+    next_month_start_date = end_date + timedelta(days=1)
+    days['next_month_start'] = datetime.strftime(
+            next_month_start_date, '%Y-%m-%d'
+    )
+    next_month_days = monthrange(
+            next_month_start_date.year,
+            next_month_start_date.month)
+    days['next_month_end'] = datetime.strftime(
+            end_date + timedelta(days=next_month_days[1]), '%Y-%m-%d'
+    )
+    return render(request, 'income_monthly.html', {
+        'balance': balance,
+        'incomes': incomes,
+        'days': days,
+        'total_income': total_income
+    })
+
+
 def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     days = {}

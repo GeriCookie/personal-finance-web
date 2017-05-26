@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block header_text %}Your income{% endblock %}
+{% block header2_text %}Enter income{% endblock %}
+{% block content %}
+<a href="/balance/{{ balance.id }}/income/m/{{ days.prev_month_start }}/{{days.prev_month_end }}/"
+   id="id_prev_month" class="btn btn-success">Previous month</a>
+<a href="/balance/{{ balance.id }}/income/m/{{ days.next_month_start }}/{{ days.next_month_end }}/"
+   id="id_next_month" class="btn btn-success">Next month</a>
+<a href="/balance/{{ balance.id }}/income/"
+   id="id_add_new_income" class="btn btn-success">Add Exoense</a>
+<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+<h1>Month: <span id="id_month">{{ days.current_month_start }} - {{days.current_month_end }}</span></h1>
+        <ul id="id_income_list" class="list list-balances">
+            {% for income in incomes %}
+            <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category }}: {{ income.amount }}</li>
+            {% endfor %}
+        </ul>
+        <h1 class="text-center">Total income: <span id="id_total_incomes">
+                {{ total_income.total_income }} </span></h1>
+{% endblock %}
