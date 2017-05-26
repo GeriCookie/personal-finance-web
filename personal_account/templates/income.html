@@ -2,6 +2,14 @@
 {% block header_text %}Your Incomes{% endblock %}
 {% block header2_text %}Enter income{% endblock %}
 {% block content %}
+<a href="/balance/{{ balance.id }}/income/{{ days.today }}/"
+   id="id_daily_income" class="btn btn-success">Daily income</a>
+<a href="/balance/{{ balance.id }}/income/{{ days.start_week }}/{{ days.end_week}}/"
+   id="id_weekly_income" class="btn btn-success">Weekly income</a>
+<a href="/balance/{{ balance.id }}/income/m/{{ days.start_month }}/{{ days.end_month }}/"
+   id="id_montly_income" class="btn btn-success">Montly income</a>
+<a href="/balance/{{ balance.id }}/income/y/{{ days.start_year }}/{{ days.end_year }}/"
+   id="id_yearly_income" class="btn btn-success">Yearly income</a>
 <a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
 <form method="POST" action="/balance/{{ balance.id }}/income/" 
             class="form-inline text-center">

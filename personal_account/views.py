@@ -36,6 +36,28 @@ def new_balance(request):
 
 def income(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
+    days = {}
+    days['today'] = datetime.strftime(datetime.today(), '%Y-%m-%d')
+    start_week = datetime.today() - timedelta(days=datetime.today().weekday())
+    end_week = start_week + timedelta(days=6)
+    days['start_week'] = datetime.strftime(start_week, '%Y-%m-%d')
+    days['end_week'] = datetime.strftime(end_week, '%Y-%m-%d')
+    monthdays = monthrange(datetime.today().year, datetime.today().month)
+    start_month_date = new_date(
+            datetime.today().year,
+            datetime.today().month,
+            1)
+    end_month_date = new_date(
+            datetime.today().year,
+            datetime.today().month,
+            monthdays[1]
+    )
+    days['start_month'] = datetime.strftime(start_month_date, '%Y-%m-%d')
+    days['end_month'] = datetime.strftime(end_month_date, '%Y-%m-%d')
+    start_year = new_date(datetime.today().year, 1, 1)
+    end_year = new_date(datetime.today().year, 12, 31)
+    days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
+    days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
     if request.method == 'POST':
         category = request.POST.get('income_category', '')
         amount = request.POST.get('income_amount', '')
@@ -49,8 +71,26 @@ def income(request, balance_id):
         balance.save(income_added=True)
         return redirect(f'/balance/{balance.id}/income/')
     return render(request, 'income.html', {
-            'balance': balance
+            'balance': balance,
+            'days': days
             })
+
+
+def daily_income(request, balance_id, date):
+    balance = Balance.objects.get(id=balance_id)
+    date = datetime.strptime(date, '%Y-%m-%d')
+    incomes = balance.income_set.filter(date=date)
+    total_income = incomes.aggregate(total_income=Sum(F('amount')))
+    days = {}
+    days['current_day'] = datetime.strftime(date, '%d %b %Y')
+    days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
+    days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
+    return render(request, 'income_daily.html', {
+        'balance': balance,
+        'incomes': incomes,
+        'days': days,
+        'total_income': total_income
+    })
 
 
 def expenses(request, balance_id):
