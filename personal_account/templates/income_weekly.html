@@ -12,7 +12,7 @@
 <h1>WEEK<span id="id_week">{{ days.current_week_start }} - {{ days.current_week_end }}</span></h1>
         <ul id="id_income_list" class="list list-balances">
             {% for income in incomes %}
-            <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category }}: {{ income.amount }}</li>
+            <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category.name }}: {{ income.amount }}</li>
             {% endfor %}
         </ul>
         <h1 class="text-center">Total income: <span id="id_total_income">

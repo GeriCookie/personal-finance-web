@@ -36,7 +36,7 @@
         <ul id="id_income_list" class="list list-balances">
             {% for income in balance.income_set.all %}
             <li class="list-item">
-                {{ income.date|date:"d M Y" }} || {{ income.category }}: {{ income.amount }}
+                {{ income.date|date:"d M Y" }} || {{ income.category.name }}: {{ income.amount }}
             </li>
             {% endfor %}
         </ul>

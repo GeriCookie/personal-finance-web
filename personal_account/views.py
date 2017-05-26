@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render
-from personal_account.models import Income, Expense, Balance
+from personal_account.models import Income, Expense, Balance, Category
 from datetime import datetime, timedelta
 from datetime import date as new_date
 from django.db.models import F, Sum
@@ -23,8 +23,11 @@ def new_balance(request):
     new_income_category = request.POST.get('income_category', '')
     new_income_amount = request.POST.get('income_amount', '')
     new_income_date = request.POST.get('income_date', '')
+    category = Category.objects.filter(name=new_income_category).first()
+    if not category:
+        category = Category.objects.create(name=new_income_category)
     Income.objects.create(
-            category=new_income_category,
+            category=category,
             amount=new_income_amount,
             date=datetime.strptime(new_income_date, '%m/%d/%Y'),
             balance=balance
@@ -59,9 +62,12 @@ def income(request, balance_id):
     days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
     days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
     if request.method == 'POST':
-        category = request.POST.get('income_category', '')
+        category_name = request.POST.get('income_category', '')
         amount = request.POST.get('income_amount', '')
         date = request.POST.get('income_date', '')
+        category = Category.objects.filter(name=category_name).first()
+        if not category:
+            category = Category.objects.create(name=category_name)
         Income.objects.create(
                 category=category,
                 amount=amount,
@@ -230,9 +236,12 @@ def expenses(request, balance_id):
     days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
     days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
     if request.method == 'POST':
-        category = request.POST.get('expense_category', '')
+        category_name = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
         date = request.POST.get('expense_date', '')
+        category = Category.objects.filter(name=category_name).first()
+        if not category:
+            category = Category.objects.create(name=category_name)
         Expense.objects.create(
                 category=category,
                 amount=amount,
