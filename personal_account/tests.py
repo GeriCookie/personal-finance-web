@@ -285,6 +285,49 @@ class NewIncomeTest(TestCase):
                 )
 
 
+class IncomesByDayView(TestCase):
+
+    def test_incomes_daily_view(self):
+        balance = Balance.objects.create()
+        Income.objects.create(
+                category='Food',
+                amount=10,
+                date=datetime.today(),
+                balance=balance
+                )
+        balance.save(income_added=True)
+        Income.objects.create(
+                category='Movie',
+                amount=20,
+                date=datetime.today(),
+                balance=balance
+                )
+        balance.save(income_added=True)
+        Income.objects.create(
+                category='Water',
+                amount=3,
+                date=datetime.today(),
+                balance=balance
+                )
+        balance.save(income_added=True)
+        Income.objects.create(
+                category='School',
+                amount=10,
+                date=datetime.today(),
+                balance=balance
+                )
+        balance.save(income_added=True)
+        today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
+        response = self.client.get(
+                f'/balance/{balance.id}/income/{today_str}/'
+                )
+        today_str_view = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.assertContains(response, f'{today_str_view} || Food: 10')
+        self.assertContains(response, f'{today_str_view} || Movie: 20')
+        self.assertContains(response, f'{today_str_view} || Water: 3')
+        self.assertContains(response, f'{today_str_view} || School: 10')
+
+
 class NewExpenseTest(TestCase):
 
     def test_can_save_a_expense_POST_request_to_an_existing_balance(self):
