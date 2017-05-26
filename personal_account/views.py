@@ -93,6 +93,40 @@ def daily_income(request, balance_id, date):
     })
 
 
+def weekly_income(request, balance_id, start_date, end_date):
+    balance = Balance.objects.get(id=balance_id)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    incomes = balance.income_set.filter(date__range=[start_date, end_date])
+    total_income = incomes.aggregate(total_income=Sum(F('amount')))
+    days = {}
+
+    days['current_week_start'] = datetime.strftime(
+            start_date, '%d %b %Y'
+    )
+    days['current_week_end'] = datetime.strftime(
+            end_date, '%d %b %Y'
+    )
+    days['prev_week_end'] = datetime.strftime(
+            start_date - timedelta(days=1), '%Y-%m-%d'
+    )
+    days['prev_week_start'] = datetime.strftime(
+            start_date - timedelta(days=7), '%Y-%m-%d'
+    )
+    days['next_week_start'] = datetime.strftime(
+            end_date + timedelta(days=1), '%Y-%m-%d'
+    )
+    days['next_week_end'] = datetime.strftime(
+            end_date + timedelta(days=7), '%Y-%m-%d'
+    )
+    return render(request, 'income_weekly.html', {
+        'balance': balance,
+        'incomes': incomes,
+        'days': days,
+        'total_income': total_income
+    })
+
+
 def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     days = {}

@@ -10,6 +10,10 @@ urlpatterns = [
     url(r'^(?P<balance_id>\d+)/income/(?P<date>\d{4}-\d{2}-\d{2})/$',
         views.daily_income,
         name='daily_income'),
+    url(
+        r'^(?P<balance_id>\d+)/income/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})/$',
+        views.weekly_income,
+        name='weekly_income'),
     url(r'^(\d+)/expenses/$', views.expenses,
         name='expenses'),
     url(r'^(?P<balance_id>\d+)/expenses/(?P<date>\d{4}-\d{2}-\d{2})/$',
