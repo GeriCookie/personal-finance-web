@@ -630,7 +630,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # She click it and the page is changed to Total balance page:
         expense_button.click()
-        monthly_expenses_btn = self.wait_for_element_on_page('id_montly_expenses')
+        monthly_expenses_btn = self.wait_for_element_on_page(
+                'id_montly_expenses')
         monthly_expenses_btn.click()
         monthdays = monthrange(datetime.today().year, datetime.today().month)
         start_month_date = date(
@@ -680,7 +681,87 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
+        expense_button = self.wait_for_element_on_page(
+                'id_add_new_expense'
+                )
+
+        expense_button.click()
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+                )
+
+        expenses_amountbox = self.browser.find_element_by_id(
+                'id_new_expense_amount'
+                )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+        expenses_inputbox.send_keys("Books")
+        expenses_amountbox.send_keys(30)
+        prev_year = datetime.strftime(
+                datetime.today() - timedelta(365), '%m/%d/%Y'
+        )
+        expenses_date.send_keys(prev_year)
+        expenses_button = self.browser.find_element_by_id(
+                'id_new_expense_button'
+                )
+        expenses_button.click()
+        prev_year_str = datetime.strftime(
+                datetime.today() - timedelta(365), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_year_str} || Books: 30.00')
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "100.00"
+                )
+        yearly_expenses_btn = self.wait_for_element_on_page(
+                'id_yearly_expenses')
+        yearly_expenses_btn.click()
+        year = self.wait_for_element_on_page('id_year')
+        current_year_start = date(datetime.today().year, 1, 1)
+        current_year_end = date(datetime.today().year, 12, 31)
+        current_year_start_str = datetime.strftime(
+                current_year_start, '%d %b %Y')
+        current_year_end_str = datetime.strftime(current_year_end, '%d %b %Y')
+        self.assertEqual(
+                year.text,
+                f'{current_year_start_str} - {current_year_end_str}')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{today_str} || Food: 10.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{yesterday_str} || Movie: 20.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_week_day_str} || Books: 20.00')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_month_str} || Clothes: 20.00')
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "70.00"
+                )
+        prev_year_btn = self.wait_for_element_on_page('id_prev_year')
+        prev_year_btn.click()
+        year = self.wait_for_element_on_page('id_year')
+        prev_year_start = date(datetime.today().year - 1, 1, 1)
+        prev_year_end = date(datetime.today().year - 1, 12, 31)
+        prev_year_start_str = datetime.strftime(prev_year_start, '%d %b %Y')
+        prev_year_end_str = datetime.strftime(prev_year_end, '%d %b %Y')
+        self.assertEqual(
+                year.text,
+                f'{prev_year_start_str} - {prev_year_end_str}')
         # button for year view
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_year_str} || Books: 30.00')
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "30.00"
+                )
         # year view
         # She sees a button that tells her "Go to total balance"
         total_balance_button = self.browser.find_element_by_id(
@@ -693,13 +774,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Total expenses: 30, and Account balance: 970
         self.assertEqual(
                 total_balance.text,
-                "930.00"
+                "900.00"
                 )
 
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "70.00"
+                "100.00"
                 )
 
         # Cookie wonderss whether the site will remember her list.
