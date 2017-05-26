@@ -169,6 +169,42 @@ def montly_income(request, balance_id, start_date, end_date):
     })
 
 
+def yearly_income(request, balance_id, start_date, end_date):
+    balance = Balance.objects.get(id=balance_id)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    incomes = balance.income_set.filter(date__range=[start_date, end_date])
+    total_income = incomes.aggregate(total_income=Sum(F('amount')))
+    days = {}
+
+    days['current_year_start'] = datetime.strftime(
+            start_date, '%d %b %Y'
+    )
+    days['current_year_end'] = datetime.strftime(
+            end_date, '%d %b %Y'
+    )
+    prev_year_end_date = start_date - timedelta(days=1)
+    days['prev_year_end'] = datetime.strftime(
+            prev_year_end_date, '%Y-%m-%d'
+    )
+    days['prev_year_start'] = datetime.strftime(
+            new_date(prev_year_end_date.year, 1, 1), '%Y-%m-%d'
+    )
+    next_year_start_date = end_date + timedelta(days=1)
+    days['next_year_start'] = datetime.strftime(
+            next_year_start_date, '%Y-%m-%d'
+    )
+    days['next_year_end'] = datetime.strftime(
+            new_date(next_year_start_date.year, 12, 31), '%Y-%m-%d'
+    )
+    return render(request, 'income_yearly.html', {
+        'balance': balance,
+        'incomes': incomes,
+        'days': days,
+        'total_income': total_income
+    })
+
+
 def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     days = {}
