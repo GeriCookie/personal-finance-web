@@ -12,7 +12,7 @@
 <h1>Month: <span id="id_month">{{ days.current_month_start }} - {{days.current_month_end }}</span></h1>
         <ul id="id_income_list" class="list list-balances">
             {% for income in incomes %}
-            <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category.name }}: {{ income.amount }}</li>
+            <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category__name  }}: {{ income.amount_per_category }}</li>
             {% endfor %}
         </ul>
         <h1 class="text-center">Total income: <span id="id_total_incomes">

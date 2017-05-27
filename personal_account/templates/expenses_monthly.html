@@ -12,7 +12,7 @@
 <h1>Month<span id="id_month">{{ days.current_month_start }} - {{days.current_month_end }}</span></h1>
         <ul id="id_expenses_list" class="list list-balances">
             {% for expense in expenses %}
-            <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category.name  }}: {{ expense.amount }}</li>
+            <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category__name  }}: {{ expense.amount_per_category }}</li>
             {% endfor %}
         </ul>
         <h1 class="text-center">Total expenses: <span id="id_total_expenses">
