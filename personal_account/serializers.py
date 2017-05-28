@@ -51,11 +51,10 @@ class ExpenseSerializer(serializers.ModelSerializer):
         fields = ('id', 'category', 'amount', 'date')
 
     def create(self, validated_data):
-        import ipdb; ipdb.set_trace()
         category_data = validated_data.pop('category')
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
-            category = Category.objects.filter(name=category_data['name'])
+            category = Category.objects.create(name=category_data['name'])
         balance_id = self.context["balance_id"]
         balance = Balance.objects.get(id=balance_id)
         expense = Expense.objects.create(
