@@ -10,7 +10,7 @@ class CategorySerializer(serializers.Serializer):
         category = Category.objects.filter(name=category_name).first()
         if not category:
             category = Category.objects.create(name=category_name)
-        return category
+        return category.name
 
 
 class IncomeSerializer(serializers.ModelSerializer):
