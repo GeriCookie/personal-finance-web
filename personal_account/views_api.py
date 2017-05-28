@@ -25,3 +25,16 @@ class IncomesList(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
+
+
+class ExpensesList(generics.ListCreateAPIView):
+    serializer_class = ExpenseSerializer
+    lookup_url_kwarg = 'balance_id'
+
+    def get_queryset(self):
+        balance_id = self.kwargs.get(self.lookup_url_kwarg)
+        expenses = Balance.objects.get(id=balance_id).expenses.all()
+        return expenses
+
+    def get_serializer_context(self):
+        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}

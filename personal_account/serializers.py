@@ -12,6 +12,7 @@ class CategorySerializer(serializers.Serializer):
             category = Category.objects.create(name=category_name)
         return category
 
+
 class IncomeSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
 
@@ -26,17 +27,30 @@ class IncomeSerializer(serializers.ModelSerializer):
             category = Category.objects.create(name=category_data['name'])
         balance_id = self.context["balance_id"]
         balance = Balance.objects.get(id=balance_id)
-        income = Income.objects.create(category=category, balance=balance, **validated_data)
+        income = Income.objects.create(
+                category=category, balance=balance, **validated_data)
         balance.save(income_added=True)
         return income
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    category = CategorySerializer(many=False)
 
     class Meta:
         model = Expense
         fields = ('id', 'category', 'amount', 'date')
+
+    def create(self, validated_data):
+        category_data = validated_data.pop('category')
+        category = Category.objects.filter(name=category_data['name']).first()
+        if not category:
+            category = Category.objects.filter(name=category_data['name'])
+        balance_id = self.context["balance_id"]
+        balance = Balance.objects.get(id=balance_id)
+        expense = Expense.objects.create(
+                category=category, balance=balance, **validated_data)
+        balance.save(expense_added=True)
+        return expense
 
 
 class BalanceSerializer(serializers.ModelSerializer):
@@ -46,4 +60,4 @@ class BalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Balance
         fields = ('id', 'total_income', 'total_expense', 'total_amount',
-                'incomes', 'expenses')
+                  'incomes', 'expenses')
