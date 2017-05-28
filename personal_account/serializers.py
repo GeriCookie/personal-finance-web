@@ -38,6 +38,11 @@ class IncomesByDatesSerializer(serializers.Serializer):
     amount_per_category = serializers.ReadOnlyField()
 
 
+class ExpensesByDatesSerializer(serializers.Serializer):
+    category__name = serializers.ReadOnlyField()
+    amount_per_category = serializers.ReadOnlyField()
+
+
 class ExpenseSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
 

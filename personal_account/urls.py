@@ -43,5 +43,6 @@ urlpatterns = [
     url(r'^api/balance/(?P<pk>[0-9]+)/$', views_api.BalanceDetail.as_view()),
     url(r'^api/balance/(?P<balance_id>[0-9]+)/incomes/$', views_api.IncomesList.as_view()),
     url(r'^api/balance/(?P<balance_id>[0-9]+)/expenses/$', views_api.ExpensesList.as_view()),
+    url(r'^api/balance/(?P<balance_id>[0-9]+)/expenses-by-date/$', views_api.ExpensesListByDate.as_view()),
     url(r'^api/balance/(?P<balance_id>[0-9]+)/incomes-by-date/$', views_api.IncomesListByDate.as_view()),
 ]
