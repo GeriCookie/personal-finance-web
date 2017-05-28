@@ -10,7 +10,7 @@ class CategorySerializer(serializers.Serializer):
         category = Category.objects.filter(name=category_name).first()
         if not category:
             category = Category.objects.create(name=category_name)
-        return category.name
+        return category
 
 class IncomeSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
@@ -20,14 +20,14 @@ class IncomeSerializer(serializers.ModelSerializer):
         fields = ('id', 'category', 'amount', 'date')
 
     def create(self, validated_data):
-        print(validated_data)
         category_data = validated_data.pop('category')
-        category = Category.objects.filter(name=category_data).first()
+        category = Category.objects.filter(name=category_data['name']).first()
         if not category:
-            category = Category.objects.create(name=category_data)
+            category = Category.objects.create(name=category_data['name'])
         balance_id = self.context["balance_id"]
         balance = Balance.objects.get(id=balance_id)
         income = Income.objects.create(category=category, balance=balance, **validated_data)
+        balance.save(income_added=True)
         return income
 
 
