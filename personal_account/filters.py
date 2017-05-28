@@ -19,7 +19,7 @@ class IncomesFilter(filters.FilterSet):
         start_date = datetime.date(value.start)
         end_date = datetime.date(value.stop)
         queryset = queryset.filter(
-            date__range=[start_date, end_date]).values('category__name').annotate(amount_per_category=Sum('amount'))
+            date__range=[start_date, end_date])
 
  
         return queryset

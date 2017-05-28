@@ -1,5 +1,6 @@
 from personal_account.models import Balance, Income, Expense, Category
-from personal_account.serializers import BalanceSerializer, IncomeSerializer, \
+from personal_account.serializers import BalanceSerializer, IncomeSerializer,\
+                                        IncomesByDatesSerializer, \
                                         ExpenseSerializer, CategorySerializer
 from personal_account.filters import IncomesFilter
 from rest_framework import generics, filters
@@ -19,8 +20,6 @@ class BalanceDetail(generics.RetrieveUpdateDestroyAPIView):
 class IncomesList(generics.ListCreateAPIView):
     serializer_class = IncomeSerializer
     lookup_url_kwarg = 'balance_id'
-    filter_backends = (ffilters.DjangoFilterBackend,)
-    filter_class = IncomesFilter
 
     def get_queryset(self):
         balance_id = self.kwargs.get(self.lookup_url_kwarg)
@@ -30,6 +29,19 @@ class IncomesList(generics.ListCreateAPIView):
     def get_serializer_context(self):
         return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
+class IncomesListByDate(generics.ListAPIView):
+    serializer_class = IncomesByDatesSerializer
+    lookup_url_kwarg = 'balance_id'
+    filter_backends = (ffilters.DjangoFilterBackend,)
+    filter_class = IncomesFilter
+
+    def get_queryset(self):
+        balance_id = self.kwargs.get(self.lookup_url_kwarg)
+        incomes = Balance.objects.get(id=balance_id).incomes.values('category__name').annotate(amount_per_category=Sum('amount'))       
+        return incomes
+
+    def get_serializer_context(self):
+        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
 class ExpensesList(generics.ListCreateAPIView):
     serializer_class = ExpenseSerializer

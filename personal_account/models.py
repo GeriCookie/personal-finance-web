@@ -45,12 +45,12 @@ class Income(models.Model):
             default=None,
             on_delete=models.CASCADE,
             related_name='incomes'
-        )
+            )
     category = models.ForeignKey(
             Category,
             default=None,
             on_delete=models.CASCADE
-        )
+            )
     amount = models.DecimalField(
             max_digits=19,
             decimal_places=2,
@@ -58,19 +58,18 @@ class Income(models.Model):
             )
     date = models.DateField(default=datetime.date.today)
 
-
 class Expense(models.Model):
     balance = models.ForeignKey(
             Balance,
             default=None,
             on_delete=models.CASCADE,
             related_name='expenses'
-        )
+            )
     category = models.ForeignKey(
             Category,
             default=None,
             on_delete=models.CASCADE
-        )
+            )
     amount = models.DecimalField(
             max_digits=19,
             decimal_places=2,
