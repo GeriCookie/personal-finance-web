@@ -25,10 +25,10 @@ class Balance(models.Model):
         expense_added = kwargs.pop('expense_added', '')
         if income_added:
             self.total_income = self.total_income + \
-                    self.income_set.last().amount
+                    self.incomes.last().amount
         if expense_added:
             self.total_expense = self.total_expense + \
-                    self.expense_set.last().amount
+                    self.expenses.last().amount
         self.total_amount = self.total_income - self.total_expense
         super(Balance, self).save(*args, **kwargs)
 
@@ -36,12 +36,15 @@ class Balance(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=300, unique=True)
 
+    def __str__(self):
+        return f'{self.name}'
 
 class Income(models.Model):
     balance = models.ForeignKey(
             Balance,
             default=None,
-            on_delete=models.CASCADE
+            on_delete=models.CASCADE,
+            related_name='incomes'
         )
     category = models.ForeignKey(
             Category,
@@ -60,7 +63,8 @@ class Expense(models.Model):
     balance = models.ForeignKey(
             Balance,
             default=None,
-            on_delete=models.CASCADE
+            on_delete=models.CASCADE,
+            related_name='expenses'
         )
     category = models.ForeignKey(
             Category,

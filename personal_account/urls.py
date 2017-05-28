@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from personal_account import views
+from personal_account import views, views_api
 
 urlpatterns = [
     url(r'^new$', views.new_balance, name='new_balance'),
@@ -39,4 +39,7 @@ urlpatterns = [
         r'^(?P<balance_id>\d+)/expenses/y/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})/$',
         views.yearly_expenses,
         name='yearly_expenses'),
+    url(r'^api/balance/$', views_api.BalanceList.as_view()),
+    url(r'^api/balance/(?P<pk>[0-9]+)/$', views_api.BalanceDetail.as_view()),
+    url(r'^api/balance/(?P<balance_id>[0-9]+)/incomes/$', views_api.IncomesList.as_view()),
 ]
