@@ -39,6 +39,7 @@ class Category(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+
 class Income(models.Model):
     balance = models.ForeignKey(
             Balance,
@@ -57,6 +58,7 @@ class Income(models.Model):
             default=Decimal('0.00')
             )
     date = models.DateField(default=datetime.date.today)
+
 
 class Expense(models.Model):
     balance = models.ForeignKey(
