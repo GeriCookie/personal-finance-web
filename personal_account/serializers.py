@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from personal_account.models import Balance, Income, Expense, Category
+from personal_account.models import Balance, Income, Expense, Category, \
+                                                    SavingsGoal
 
 
 class CategorySerializer(serializers.Serializer):
@@ -10,7 +11,7 @@ class CategorySerializer(serializers.Serializer):
         category = Category.objects.filter(name=category_name).first()
         if not category:
             category = Category.objects.create(name=category_name)
-        return category.name
+        return category
 
 
 class IncomeSerializer(serializers.ModelSerializer):
@@ -63,11 +64,29 @@ class ExpenseSerializer(serializers.ModelSerializer):
         return expense
 
 
+class SavingsGoalSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SavingsGoal
+        fields = ('id', 'amount', 'end_date', 'completed')
+
+    def create(self, validated_data):
+        balance_id = self.context["balance_id"]
+        balance = Balance.objects.get(id=balance_id)
+        savings_goal = SavingsGoal.objects.create(
+                balance=balance, **validated_data)
+        balance.save(savings_goal_added=True)
+        return savings_goal
+
+
 class BalanceSerializer(serializers.ModelSerializer):
     incomes = IncomeSerializer(many=True, read_only=True)
     expenses = ExpenseSerializer(many=True, read_only=True)
+    savings_goals = SavingsGoalSerializer(many=True, read_only=True)
 
     class Meta:
         model = Balance
-        fields = ('id', 'total_income', 'total_expense', 'total_amount',
-                  'incomes', 'expenses')
+        fields = ('id', 'total_income', 'total_expense',
+                  'total_amount', 'recommended_expenses_per_day',
+                  'target_savings_month_end', 'total_savings',
+                  'incomes', 'expenses', 'savings_goals')

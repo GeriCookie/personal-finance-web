@@ -1,6 +1,7 @@
 from personal_account.models import Balance
 from personal_account.serializers import BalanceSerializer, IncomeSerializer,\
-        IncomesByDatesSerializer, ExpensesByDatesSerializer, ExpenseSerializer
+        IncomesByDatesSerializer, ExpensesByDatesSerializer,\
+        ExpenseSerializer, SavingsGoalSerializer
 from personal_account.filters import IncomesFilter, ExpensesFilter
 from rest_framework import generics
 from django.db.models import Sum
@@ -70,6 +71,19 @@ class ExpensesListByDate(generics.ListAPIView):
         expenses = Balance.objects.get(id=balance_id).expenses.values(
                 'category__name').annotate(amount_per_category=Sum('amount'))
         return expenses
+
+    def get_serializer_context(self):
+        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
+
+
+class SavingsGoalList(generics.ListCreateAPIView):
+    serializer_class = SavingsGoalSerializer
+    lookup_url_kwarg = 'balance_id'
+
+    def get_queryset(self):
+        balance_id = self.kwargs.get(self.lookup_url_kwarg)
+        savings_goals = Balance.objects.get(id=balance_id).savings_goals.all()
+        return savings_goals
 
     def get_serializer_context(self):
         return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
