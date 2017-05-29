@@ -347,7 +347,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 delta=10
                 )
 
-    def test_user_check_expenses_on_daily_week_month_and_year_basis(self):
+    def test_user_check_expenses_on_daily_basis(self):
 
         self.browser.get(self.live_server_url)
 
@@ -480,6 +480,134 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 "30.00"
                 )
 
+        # Button for dayly view]
+        daily_view_button = self.browser.find_element_by_id(
+                                            'id_daily_expenses'
+                                            )
+        # dayly view
+        daily_view_button.click()
+        day = self.wait_for_element_on_page('id_day')
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.assertEqual(day.text, today_str)
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '|| Food: 10.00'
+        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
+        prev_day_button = self.browser.find_element_by_id('id_prev_day')
+        prev_day_button.send_keys(Keys.ENTER)
+        yesterday_str = datetime.strftime(
+                datetime.today() - timedelta(days=1), '%d %b %Y'
+        )
+        day = self.wait_for_element_on_page('id_day')
+        self.assertEqual(day.text, yesterday_str)
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '|| Movie: 20.00')
+        self.assertEqual(
+                total_expenses.text,
+                "20.00"
+                )
+
+    def test_user_check_expenses_on_week_basis(self):
+
+        self.browser.get(self.live_server_url)
+
+        # She notices the page title and header mentioned personal finance
+
+        # She is invited to enter her income amount and category straight away
+        income_inputbox = self.browser.find_element_by_id(
+                'id_new_income_category'
+                )
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        # She types "Salary" and 1000 into a text box
+        income_inputbox.send_keys('Salary')
+        income_amountbox.send_keys(1000)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        income_date.send_keys(today)
+        # When she hits the "Add income" button, the page updates,
+        # and now the page lists:
+        income_button = self.browser.find_element_by_id('id_new_income_button')
+        income_button.click()
+        # "Salary: 1000"
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                    'id_income_list',
+                    f'{today_str} || Salary: 1000.00'
+        )
+
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                'id_total_balance_button'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        self.assertEqual(
+                total_balance.text,
+                '1000.00'
+                )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                '1000.00'
+                )
+        # She sees that her total expenses are 0.00
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                '0.00'
+                )
+        # She sees the Add new expense button and click it:
+        add_expenses_button = self.browser.find_element_by_id(
+                'id_add_new_expense'
+                )
+        add_expenses_button.click()
+        # She is invited to enter her expenses amount and category
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+                )
+        # She types "Food" and 10
+
+        expenses_amountbox = self.browser.find_element_by_id(
+                'id_new_expense_amount'
+                )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+
+        # When she hits the "Add expense" button, the page updates
+        # and now the page lists:
+        expenses_inputbox.send_keys("Food")
+        expenses_amountbox.send_keys(10)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        expenses_date.send_keys(today)
+        expenses_button = self.browser.find_element_by_id(
+                'id_new_expense_button'
+                )
+        expenses_button.click()
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        # "Food: 10", "Total expences: 10"
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{today_str} || Food: 10.00'
+        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
+
+        # Add some expenses from prev week
+
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
                 )
@@ -507,8 +635,140 @@ class NewVisitorTest(StaticLiveServerTestCase):
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "50.00"
+                "30.00"
                 )
+        week_view_btn = self.wait_for_element_on_page('id_weekly_expenses')
+        week_view_btn.click()
+        week = self.wait_for_element_on_page('id_week')
+        today = datetime.today()
+        start_week = today - timedelta(days=today.weekday())
+        end_week = start_week + timedelta(days=6)
+        start_week_str = datetime.strftime(start_week, '%d %b %Y')
+        end_week_str = datetime.strftime(end_week, '%d %b %Y')
+        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'|| Food: 10.00')
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
+        prev_week_btn = self.browser.find_element_by_id("id_prev_week")
+        prev_week_btn.click()
+        end_prev_week = start_week - timedelta(days=1)
+        start_prev_week = end_prev_week - timedelta(days=6)
+        week = self.wait_for_element_on_page('id_week')
+        start_week_str = datetime.strftime(start_prev_week, '%d %b %Y')
+        end_week_str = datetime.strftime(end_prev_week, '%d %b %Y')
+        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
+
+        prev_week_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=6), '%d %b %Y'
+        )
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                '|| Books: 20.00')
+
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "20.00"
+                )
+
+    def test_user_check_expenses_on_month_basis(self):
+
+        self.browser.get(self.live_server_url)
+
+        # She notices the page title and header mentioned personal finance
+
+        # She is invited to enter her income amount and category straight away
+        income_inputbox = self.browser.find_element_by_id(
+                'id_new_income_category'
+                )
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
+                )
+
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        # She types "Salary" and 1000 into a text box
+        income_inputbox.send_keys('Salary')
+        income_amountbox.send_keys(1000)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        income_date.send_keys(today)
+        # When she hits the "Add income" button, the page updates,
+        # and now the page lists:
+        income_button = self.browser.find_element_by_id('id_new_income_button')
+        income_button.click()
+        # "Salary: 1000"
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                    'id_income_list',
+                    f'{today_str} || Salary: 1000.00'
+        )
+
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                'id_total_balance_button'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        self.assertEqual(
+                total_balance.text,
+                '1000.00'
+                )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                '1000.00'
+                )
+        # She sees that her total expenses are 0.00
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                '0.00'
+                )
+        # She sees the Add new expense button and click it:
+        add_expenses_button = self.browser.find_element_by_id(
+                'id_add_new_expense'
+                )
+        add_expenses_button.click()
+        # She is invited to enter her expenses amount and category
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+                )
+        # She types "Food" and 10
+
+        expenses_amountbox = self.browser.find_element_by_id(
+                'id_new_expense_amount'
+                )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+
+        # When she hits the "Add expense" button, the page updates
+        # and now the page lists:
+        expenses_inputbox.send_keys("Food")
+        expenses_amountbox.send_keys(10)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        expenses_date.send_keys(today)
+        expenses_button = self.browser.find_element_by_id(
+                'id_new_expense_button'
+                )
+        expenses_button.click()
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        # "Food: 10", "Total expences: 10"
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{today_str} || Food: 10.00'
+        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
+
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
                 )
@@ -535,104 +795,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "70.00"
-                )
-        # Button for dayly view]
-        daily_view_button = self.browser.find_element_by_id(
-                                            'id_daily_expenses'
-                                            )
-        # dayly view
-        daily_view_button.click()
-        day = self.wait_for_element_on_page('id_day')
-        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
-        self.assertEqual(day.text, today_str)
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Food: 10.00'
-        )
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
-        self.assertEqual(
-                total_expenses.text,
-                "10.00"
-                )
-        prev_day_button = self.browser.find_element_by_id('id_prev_day')
-        prev_day_button.send_keys(Keys.ENTER)
-        yesterday_str = datetime.strftime(
-                datetime.today() - timedelta(days=1), '%d %b %Y'
-        )
-        day = self.wait_for_element_on_page('id_day')
-        day = self.browser.find_element_by_id('id_day')
-        self.assertEqual(day.text, yesterday_str)
-        total_expenses = self.wait_for_element_on_page('id_total_expenses')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Movie: 20.00')
-        self.assertEqual(
-                total_expenses.text,
-                "20.00"
-                )
-        # button for week view
-        expense_button = self.wait_for_element_on_page(
-                'id_add_new_expense'
-                )
-
-        # She click it and the page is changed to Total balance page:
-        expense_button.click()
-        week_view_btn = self.wait_for_element_on_page('id_weekly_expenses')
-        week_view_btn.click()
-        week = self.wait_for_element_on_page('id_week')
-        today = datetime.today()
-        start_week = today - timedelta(days=today.weekday())
-        end_week = start_week + timedelta(days=6)
-        start_week_str = datetime.strftime(start_week, '%d %b %Y')
-        end_week_str = datetime.strftime(end_week, '%d %b %Y')
-        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
-        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
-        yesterday_str = datetime.strftime(
-                datetime.today() - timedelta(days=1), '%d %b %Y'
-        )
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                f'|| Food: 10.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                f'|| Movie: 20.00')
-        prev_year = datetime.strftime(
-                datetime.today() - timedelta(365), '%m/%d/%Y'
-        )
-        total_expenses = self.wait_for_element_on_page('id_total_expenses')
-        self.assertEqual(
-                total_expenses.text,
                 "30.00"
                 )
-        prev_week_btn = self.browser.find_element_by_id("id_prev_week")
-        prev_week_btn.click()
-        end_prev_week = start_week - timedelta(days=1)
-        start_prev_week = end_prev_week - timedelta(days=6)
-        week = self.wait_for_element_on_page('id_week')
-        start_week_str = datetime.strftime(start_prev_week, '%d %b %Y')
-        end_week_str = datetime.strftime(end_prev_week, '%d %b %Y')
-        self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
-
-        prev_week_day_str = datetime.strftime(
-                datetime.today() - timedelta(days=6), '%d %b %Y'
-        )
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Books: 20.00')
-
-        total_expenses = self.wait_for_element_on_page('id_total_expenses')
-        self.assertEqual(
-                total_expenses.text,
-                "20.00"
-                )
         # month view
-        expense_button = self.wait_for_element_on_page(
-                'id_add_new_expense'
-                )
-
-        # She click it and the page is changed to Total balance page:
-        expense_button.click()
         monthly_expenses_btn = self.wait_for_element_on_page(
                 'id_montly_expenses')
         monthly_expenses_btn.click()
@@ -649,17 +814,11 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.wait_for_li_in_ul(
                 'id_expenses_list',
                 '|| Food: 10.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Movie: 20.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Books: 20.00')
 
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "50.00"
+                "10.00"
                 )
         prev_month_button = self.wait_for_element_on_page('id_prev_month')
         prev_month_button.click()
@@ -684,11 +843,99 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
-        expense_button = self.wait_for_element_on_page(
-                'id_add_new_expense'
+
+    def test_user_check_expenses_on_year_basis(self):
+
+        self.browser.get(self.live_server_url)
+
+        # She notices the page title and header mentioned personal finance
+
+        # She is invited to enter her income amount and category straight away
+        income_inputbox = self.browser.find_element_by_id(
+                'id_new_income_category'
+                )
+        income_amountbox = self.browser.find_element_by_id(
+                'id_new_income_amount'
                 )
 
-        expense_button.click()
+        income_date = self.browser.find_element_by_id('id_new_income_date')
+        # She types "Salary" and 1000 into a text box
+        income_inputbox.send_keys('Salary')
+        income_amountbox.send_keys(1000)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        income_date.send_keys(today)
+        # When she hits the "Add income" button, the page updates,
+        # and now the page lists:
+        income_button = self.browser.find_element_by_id('id_new_income_button')
+        income_button.click()
+        # "Salary: 1000"
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        self.wait_for_li_in_ul(
+                    'id_income_list',
+                    f'{today_str} || Salary: 1000.00'
+        )
+
+        # She sees a button that tells her "Go to total balance"
+        total_balance_button = self.browser.find_element_by_id(
+                'id_total_balance_button'
+                )
+
+        # She click it and the page is changed to Total balance page:
+        total_balance_button.click()
+        total_balance = self.wait_for_element_on_page('id_total_balance')
+        self.assertEqual(
+                total_balance.text,
+                '1000.00'
+                )
+        total_income = self.browser.find_element_by_id('id_total_income')
+        self.assertEqual(
+                total_income.text,
+                '1000.00'
+                )
+        # She sees that her total expenses are 0.00
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                '0.00'
+                )
+        # She sees the Add new expense button and click it:
+        add_expenses_button = self.browser.find_element_by_id(
+                'id_add_new_expense'
+                )
+        add_expenses_button.click()
+        # She is invited to enter her expenses amount and category
+        expenses_inputbox = self.wait_for_element_on_page(
+                'id_new_expense_category'
+                )
+        # She types "Food" and 10
+
+        expenses_amountbox = self.browser.find_element_by_id(
+                'id_new_expense_amount'
+                )
+        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+
+        # When she hits the "Add expense" button, the page updates
+        # and now the page lists:
+        expenses_inputbox.send_keys("Food")
+        expenses_amountbox.send_keys(10)
+        today = datetime.strftime(datetime.today(), '%m/%d/%Y')
+        expenses_date.send_keys(today)
+        expenses_button = self.browser.find_element_by_id(
+                'id_new_expense_button'
+                )
+        expenses_button.click()
+        today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        # "Food: 10", "Total expences: 10"
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{today_str} || Food: 10.00'
+        )
+        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        self.assertEqual(
+                total_expenses.text,
+                "10.00"
+                )
+
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
                 )
@@ -709,11 +956,18 @@ class NewVisitorTest(StaticLiveServerTestCase):
         expenses_button.click()
         self.wait_for_li_in_ul(
                 'id_expenses_list',
-                '|| Books: 30.00')
+                f'{today_str} || Food: 10.00'
+        )
+        prev_year_str = datetime.strftime(
+                datetime.today() - timedelta(365), '%d %b %Y'
+        )
+        self.wait_for_li_in_ul(
+                'id_expenses_list',
+                f'{prev_year_str} || Books: 30.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "100.00"
+                "40.00"
                 )
         yearly_expenses_btn = self.wait_for_element_on_page(
                 'id_yearly_expenses')
@@ -730,19 +984,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.wait_for_li_in_ul(
                 'id_expenses_list',
                 '|| Food: 10.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Movie: 20.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Books: 20.00')
-        self.wait_for_li_in_ul(
-                'id_expenses_list',
-                '|| Clothes: 20.00')
         total_expenses = self.browser.find_element_by_id('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
-                "70.00"
+                "10.00"
                 )
         prev_year_btn = self.wait_for_element_on_page('id_prev_year')
         prev_year_btn.click()
@@ -763,34 +1008,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "30.00"
                 )
-        # year view
-        # She sees a button that tells her "Go to total balance"
-        total_balance_button = self.browser.find_element_by_id(
-                'id_total_balance_button'
-                )
-
-        # She click it and the page is changed to Total balance page:
-        total_balance_button.click()
-        total_balance = self.wait_for_element_on_page('id_total_balance')
-        # Total expenses: 30, and Account balance: 970
-        self.assertEqual(
-                total_balance.text,
-                "900.00"
-                )
-
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
-        self.assertEqual(
-                total_expenses.text,
-                "100.00"
-                )
-
-        # Cookie wonderss whether the site will remember her list.
-        # Then she sees that the site has generated a unique URL for her --
-        # there is some explanatory text
-        # to that effect.
-
-        # She visits that URL - her personal finance balance is still there.
-        # Satisfied, she goes back to sleep
 
     def test_user_check_incomes_on_daily_basis(self):
 
