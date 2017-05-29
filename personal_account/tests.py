@@ -367,11 +367,10 @@ class IncomesByDayView(TestCase):
         response = self.client.get(
                 f'/balance/{balance.id}/income/{today_str}/'
                 )
-        today_str_view = datetime.strftime(datetime.today(), '%d %b %Y')
-        self.assertContains(response, f'{today_str_view} || Food: 10')
-        self.assertContains(response, f'{today_str_view} || Movie: 20')
-        self.assertContains(response, f'{today_str_view} || Water: 3')
-        self.assertContains(response, f'{today_str_view} || School: 10')
+        self.assertContains(response, '|| Food: 10')
+        self.assertContains(response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
+        self.assertContains(response, '|| School: 10')
 
     def test_incomes_weekly_view(self):
         balance = Balance.objects.create()
@@ -423,12 +422,11 @@ class IncomesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/income/{start_week_str}/{end_week_str}/'
                 )
-        prev_week_day_str_view = datetime.strftime(prev_week_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_week_day_str_view} || Food: 10')
-        self.assertContains(response, f'{prev_week_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_week_day_str_view} || Water: 3')
+        self.assertContains(response, '|| Food: 10')
+        self.assertContains(response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_week_day_str_view} || School: 10')
+                response, '|| School: 10')
 
     def test_income_monthly_view(self):
         balance = Balance.objects.create()
@@ -484,13 +482,12 @@ class IncomesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/income/m/{start_prev_m}/{end_prev_m}/'
                 )
-        prev_month_day_str_view = datetime.strftime(prev_month_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_month_day_str_view} || Food: 10')
+        self.assertContains(response, '|| Food: 10')
         self.assertContains(
-                response, f'{prev_month_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_month_day_str_view} || Water: 3')
+                response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_month_day_str_view} || School: 10')
+                response, '|| School: 10')
 
     def test_income_yearly_view(self):
         balance = Balance.objects.create()
@@ -544,13 +541,12 @@ class IncomesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/income/y/{start_prev_y}/{end_prev_y}/'
                 )
-        prev_year_day_str_view = datetime.strftime(prev_year_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_year_day_str_view} || Food: 10')
+        self.assertContains(response, '|| Food: 10')
         self.assertContains(
-                response, f'{prev_year_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_year_day_str_view} || Water: 3')
+                response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_year_day_str_view} || School: 10')
+                response, '|| School: 10')
 
 
 class NewExpenseTest(TestCase):
@@ -646,11 +642,10 @@ class ExpensesByDayView(TestCase):
         response = self.client.get(
                 f'/balance/{correct_balance.id}/expenses/{today_str}/'
                 )
-        today_str_view = datetime.strftime(datetime.today(), '%d %b %Y')
-        self.assertContains(response, f'{today_str_view} || Food: 10')
-        self.assertContains(response, f'{today_str_view} || Movie: 20')
-        self.assertContains(response, f'{today_str_view} || Water: 3')
-        self.assertContains(response, f'{today_str_view} || School: 10')
+        self.assertContains(response, '|| Food: 10')
+        self.assertContains(response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
+        self.assertContains(response, '|| School: 10')
 
     def test_expenses_weekly_view(self):
         balance = Balance.objects.create()
@@ -702,12 +697,11 @@ class ExpensesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/expenses/{start_week_str}/{end_week_str}/'
                 )
-        prev_week_day_str_view = datetime.strftime(prev_week_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_week_day_str_view} || Food: 10')
-        self.assertContains(response, f'{prev_week_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_week_day_str_view} || Water: 3')
+        self.assertContains(response, '|| Food: 10')
+        self.assertContains(response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_week_day_str_view} || School: 10')
+                response, '|| School: 10')
 
     def test_expenses_monthly_view(self):
         balance = Balance.objects.create()
@@ -763,13 +757,12 @@ class ExpensesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/expenses/m/{start_prev_m}/{end_prev_m}/'
                 )
-        prev_month_day_str_view = datetime.strftime(prev_month_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_month_day_str_view} || Food: 10')
+        self.assertContains(response, '|| Food: 10')
         self.assertContains(
-                response, f'{prev_month_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_month_day_str_view} || Water: 3')
+                response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_month_day_str_view} || School: 10')
+                response, '|| School: 10')
 
     def test_expenses_yearly_view(self):
         balance = Balance.objects.create()
@@ -823,10 +816,9 @@ class ExpensesByDayView(TestCase):
         response = self.client.get(
             f'/balance/{balance.id}/expenses/y/{start_prev_y}/{end_prev_y}/'
                 )
-        prev_year_day_str_view = datetime.strftime(prev_year_day, '%d %b %Y')
-        self.assertContains(response, f'{prev_year_day_str_view} || Food: 10')
+        self.assertContains(response, '|| Food: 10')
         self.assertContains(
-                response, f'{prev_year_day_str_view} || Movie: 20')
-        self.assertContains(response, f'{prev_year_day_str_view} || Water: 3')
+                response, '|| Movie: 20')
+        self.assertContains(response, '|| Water: 3')
         self.assertContains(
-                response, f'{prev_year_day_str_view} || School: 10')
+                response, '|| School: 10')

@@ -33,7 +33,7 @@
             {% csrf_token %}
         </form>
         <ul id="id_expenses_list" class="list list-balances">
-            {% for expense in balance.expense_set.all %}
+            {% for expense in balance.expenses.all %}
             <li class="list-item"> {{ expense.date|date:"d M Y" }} || {{ expense.category.name }}: {{ expense.amount }}</li>
             {% endfor %}
         </ul>

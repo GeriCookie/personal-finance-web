@@ -15,6 +15,6 @@
             <li class="list-item"> {{ income.date|date:"d M Y" }} || {{ income.category__name }}: {{ income.amount_per_category }}</li>
             {% endfor %}
         </ul>
-        <h1 class="text-center">Total income: <span id="id_total_incomes">
+        <h1 class="text-center">Total income: <span id="id_total_income">
                 {{ total_income.total_income }} </span></h1>
 {% endblock %}

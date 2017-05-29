@@ -85,7 +85,7 @@ def income(request, balance_id):
 def daily_income(request, balance_id, date):
     balance = Balance.objects.get(id=balance_id)
     date = datetime.strptime(date, '%Y-%m-%d')
-    incomes = balance.income_set.filter(date=date).values(
+    incomes = balance.incomes.filter(date=date).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_income = incomes.aggregate(total_income=Sum(F('amount')))
     days = {}
@@ -104,7 +104,7 @@ def weekly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    incomes = balance.income_set.filter(
+    incomes = balance.incomes.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_income = incomes.aggregate(total_income=Sum(F('amount')))
@@ -140,7 +140,7 @@ def montly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    incomes = balance.income_set.filter(
+    incomes = balance.incomes.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_income = incomes.aggregate(total_income=Sum(F('amount')))
@@ -184,7 +184,7 @@ def yearly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    incomes = balance.income_set.filter(
+    incomes = balance.incomes.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_income = incomes.aggregate(total_income=Sum(F('amount')))
@@ -266,7 +266,7 @@ def expenses(request, balance_id):
 def daily_expenses(request, balance_id, date):
     balance = Balance.objects.get(id=balance_id)
     date = datetime.strptime(date, '%Y-%m-%d')
-    expenses = balance.expense_set.filter(date=date).values(
+    expenses = balance.expenses.filter(date=date).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
     days = {}
@@ -285,7 +285,7 @@ def weekly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    expenses = balance.expense_set.filter(
+    expenses = balance.expenses.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
@@ -321,7 +321,7 @@ def montly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    expenses = balance.expense_set.filter(
+    expenses = balance.expenses.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
@@ -365,7 +365,7 @@ def yearly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
-    expenses = balance.expense_set.filter(
+    expenses = balance.expenses.filter(
             date__range=[start_date, end_date]).values(
             'category__name').annotate(amount_per_category=Sum('amount'))
     total_expenses = expenses.aggregate(total_expenses=Sum(F('amount')))
