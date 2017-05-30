@@ -86,8 +86,8 @@ class Balance(models.Model):
 class Category(models.Model):
     name = models.CharField(max_length=300, unique=True)
 
-    def __str__(self):
-        return f'{self.name}'
+   # def __str__(self):
+    #    return f'{self.name}'
 
 
 class Income(models.Model):
