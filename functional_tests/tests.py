@@ -37,7 +37,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
-    def wait_for_element_on_page(self, element_id, timeout=100):
+    def wait_for_element_on_page(self, element_id, timeout=10):
         wait = WebDriverWait(self.browser, timeout)
         wait.until(EC.element_to_be_clickable((By.ID, element_id)))
         return self.browser.find_element_by_id(element_id)
