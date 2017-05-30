@@ -2,6 +2,7 @@ from selenium.common.exceptions import WebDriverException
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 import time
+import os
 from datetime import datetime, timedelta, date
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,6 +17,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Firefox()
+        staging_server = os.environ.get('STAGING_SERVER')
+        if staging_server:
+            self.live_server_url = 'http://' + staging_server
 
     def tearDown(self):
         self.browser.quit()
@@ -1264,31 +1268,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 "1010.00"
                 )
 
-        # There is still a text box inviting her to add another expense.
-        # She enters "Movie" and 20
-
-        income_inputbox = self.wait_for_element_on_page(
-                'id_new_income_category'
-                )
-
-        income_amountbox = self.browser.find_element_by_id(
-                'id_new_income_amount'
-                )
-        income_date = self.browser.find_element_by_id('id_new_income_date')
-        income_inputbox.send_keys("Movie")
-        income_amountbox.send_keys(20)
-        yesterday = datetime.strftime(
-                datetime.today() - timedelta(days=1), '%m/%d/%Y'
-        )
-        income_date.send_keys(yesterday)
-        income_button = self.browser.find_element_by_id(
-                'id_new_income_button'
-                )
-        income_button.click()
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
-        yesterday_str = datetime.strftime(
-                datetime.today() - timedelta(days=1), '%d %b %Y'
-        )
         # The page updates again, and now shows both expenses,
         self.wait_for_li_in_ul(
                 'id_income_list',
@@ -1297,15 +1277,12 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_income_list',
                 f'{today_str} || Food: 10.00'
         )
-        self.wait_for_li_in_ul(
-                'id_income_list',
-                f'{yesterday_str} || Movie: 20.00')
         # Add some expenses from prev week
 
         total_incomes = self.browser.find_element_by_id('id_total_income')
         self.assertEqual(
                 total_incomes.text,
-                "1030.00"
+                "1010.00"
                 )
 
         income_inputbox = self.wait_for_element_on_page(
@@ -1334,7 +1311,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         total_income = self.browser.find_element_by_id('id_total_income')
         self.assertEqual(
                 total_income.text,
-                "1050.00"
+                "1030.00"
                 )
         # button for week view
         week_view_btn = self.wait_for_element_on_page('id_weekly_income')
@@ -1347,9 +1324,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
         end_week_str = datetime.strftime(end_week, '%d %b %Y')
         self.assertEqual(week.text, f'{start_week_str} - {end_week_str}')
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
-        yesterday_str = datetime.strftime(
-                datetime.today() - timedelta(days=1), '%d %b %Y'
-        )
         self.wait_for_li_in_ul(
                 'id_income_list',
                 '|| Salary: 1000.00')
@@ -1357,18 +1331,9 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_income_list',
                 '|| Food: 10.00')
         total_income = self.wait_for_element_on_page('id_total_income')
-        if (date.today() - timedelta(days=1)).weekday() != 6:
-            self.wait_for_li_in_ul(
-                    'id_income_list',
-                    '|| Movie: 20.00')
-            self.assertEqual(
-                    total_income.text,
-                    "1030.00"
-                )
-        else:
-            self.assertEqual(
-                total_income.text,
-                "1010.00"
+        self.assertEqual(
+            total_income.text,
+            "1010.00"
                 )
         prev_week_btn = self.browser.find_element_by_id("id_prev_week")
         prev_week_btn.click()
@@ -1382,19 +1347,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.wait_for_li_in_ul(
                 'id_income_list',
                 '|| Books: 20.00')
-        if (date.today()-timedelta(days=1)).weekday() == 6:
-            self.wait_for_li_in_ul(
-                    'id_income_list',
-                    '|| Movie: 20.00')
-            self.assertEqual(
-                    total_income.text,
-                    "40.00"
-                    )
-        else:
-            self.assertEqual(
-                    total_income.text,
-                    "20.00"
-                    )
+        self.assertEqual(
+                total_income.text,
+                "20.00"
+                )
 
     def test_user_check_incomes_on_month_basis(self):
 
