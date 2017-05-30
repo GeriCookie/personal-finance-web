@@ -7,7 +7,7 @@ User=ubuntu
 WorkingDirectory=/home/ubuntu/sites/SITENAME/source
 ExecStart=/home/ubuntu/sites/SITENAME/virtualenv/bin/gunicorn \
     --bind unix:/tmp/SITENAME.socket \
-    superlists.wsgi:application
+    personal_finance.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
