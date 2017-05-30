@@ -4,10 +4,10 @@ Description=Gunicorn server for SITENAME
 [Service]
 Restart=on-failure
 User=ubuntu
-WorkingDirectory=/home/ubuntu/sites/SITENAME/souce
+WorkingDirectory=/home/ubuntu/sites/SITENAME/source
 ExecStart=/home/ubuntu/sites/SITENAME/virtualenv/bin/gunicorn \
     --bind unix:/tmp/SITENAME.socket \
-    personal_account.wsgi:application
+    personal_finance.wsgi:application
 
 [Install]
 WantedBy=multi-user.target
