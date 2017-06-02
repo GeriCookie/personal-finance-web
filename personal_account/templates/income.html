@@ -34,7 +34,7 @@
             {% csrf_token %}
         </form>
         <ul id="id_income_list" class="list list-balances">
-            {% for income in balance.incomes.all %}
+            {% for income in incomes %}
             <li class="list-item">
                 {{ income.date|date:"d M Y" }} || {{ income.category.name }}: {{ income.amount }}
             </li>

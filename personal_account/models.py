@@ -1,7 +1,106 @@
 from django.db import models
 from decimal import Decimal
-from calendar import monthrange
-from datetime import date
+from datetime import date, datetime
+from django.db.models import Sum, F
+
+
+class CategoryManager(models.Manager):
+
+    def create_category(self, category_name):
+        category = Category.objects.filter(name=category_name).first()
+        if not category:
+            category = Category.objects.create(name=category_name)
+        return category
+
+
+class BalanceQuerySet(models.QuerySet):
+
+    def get_incomes(self, balance_id):
+        return self.get(id=balance_id).incomes.all()
+
+    def get_expenses(self, balance_id):
+        return self.get(id=balance_id).expenses.all()
+
+
+class BalanceManager(models.Manager):
+
+    def get_queryset(self):
+        return BalanceQuerySet(self.model, using=self._db)
+
+    def get_incomes(self, balance_id):
+        return self.get_queryset().get_incomes(balance_id)
+
+    def get_expenses(self, balance_id):
+        return self.get_queryset().get_expenses(balance_id)
+
+    def create_income(self, **kwargs):
+        category = kwargs.get('category')
+        amount = kwargs.get('amount')
+        date = datetime.strptime(kwargs.get('date'), '%m/%d/%Y')
+        balance = kwargs.get('balance')
+        Income.objects.create(
+                category=category,
+                amount=amount,
+                date=date,
+                balance=balance
+                )
+        balance.total_income += Decimal(amount)
+        self.calculate_balance_values(balance)
+        balance.save()
+
+    def create_expense(self, **kwargs):
+        category = kwargs.get('category')
+        amount = kwargs.get('amount')
+        date = datetime.strptime(kwargs.get('date'), '%m/%d/%Y')
+        balance = kwargs.get('balance')
+        Expense.objects.create(
+                category=category,
+                amount=amount,
+                date=date,
+                balance=balance
+                )
+        balance.total_expense += Decimal(amount)
+        self.calculate_balance_values(balance)
+        balance.save()
+
+    def calculate_balance_values(self, balance):
+        savings_goal = balance.savings_goals.filter(completed=False).first()
+        days_by_end_goal_date = 1
+        savings_amount = 0
+        today = date.today()
+        if savings_goal:
+            end_date = savings_goal.end_date
+            days_by_end_goal_date = (end_date - today).days
+            savings_amount = savings_goal.amount
+
+            if end_date == today:
+                if balance.total_amount >= savings_amount:
+                    savings_goal.completed = True
+                    savings_goal.save()
+                    balance.total_savings += savings_amount
+        balance.total_amount = balance.total_income - (
+                balance.total_expense -
+                balance.total_savings)
+        if savings_goal and end_date != today:
+            balance.recommended_expenses_per_day = (
+                    balance.total_amount -
+                    balance.savings_amount) / days_by_end_goal_date
+
+
+class FilterQuerySet(models.QuerySet):
+
+    def by_day(self, day):
+        return self.filter(date=day)
+
+    def date_range(self, start_date, end_date):
+        return self.filter(date__range=[start_date, end_date])
+
+    def amount_per_category(self):
+        return self.values(
+                'category__name').annotate(amount_per_category=Sum('amount'))
+
+    def total_amount(self):
+        return self.aggregate(total_amount=Sum(F('amount')))
 
 
 class Balance(models.Model):
@@ -35,59 +134,13 @@ class Balance(models.Model):
             decimal_places=2,
             default=Decimal(0.00)
             )
-
-    def save(self, *args, **kwargs):
-        income_added = kwargs.pop('income_added', '')
-        expense_added = kwargs.pop('expense_added', '')
-        savings_goal_added = kwargs.pop('savings_goal_added', '')
-        today = date.today()
-        savings_goal = self.savings_goals.filter(completed=False).first()
-        days_by_end_goal_date = 1
-        days_by_the_end_of_the_month = monthrange(today.year,
-                    today.month)[1] - today.day
-        savings_amount = 0
-        if savings_goal:
-            end_date = savings_goal.end_date
-            days_by_end_goal_date = (end_date - today).days
-            if days_by_end_goal_date == 0:
-                days_by_end_goal_date = 1
-            savings_amount = savings_goal.amount
-
-            if end_date == today:
-                if self.total_amount >= savings_amount:
-                    savings_goal.completed = True
-                    savings_goal.save()
-                    self.total_savings = self.total_savings + savings_amount
-                    savings_amount = 0
-
-
-        if income_added:
-            self.total_income = self.total_income + \
-                    self.incomes.last().amount
-
-        if expense_added:
-            self.total_expense = self.total_expense + \
-                    self.expenses.last().amount
-
-        if savings_goal_added:
-            savings_goal = self.savings_goals.first()
-            total_days = savings_goal.end_date - today
-            if total_days:
-                savings_per_day = savings_goal.amount/total_days.days
-                self.target_savings_month_end = savings_per_day * days_by_the_end_of_the_month
-        
-        self.total_amount = self.total_income - self.total_expense - self.total_savings
-        self.recommended_expenses_per_day = (self.total_amount -
-                self.target_savings_month_end) / days_by_the_end_of_the_month
-
-        super(Balance, self).save(*args, **kwargs)
+    objects = BalanceManager()
 
 
 class Category(models.Model):
     name = models.CharField(max_length=300, unique=True)
 
-   # def __str__(self):
-    #    return f'{self.name}'
+    objects = CategoryManager()
 
 
 class Income(models.Model):
@@ -108,6 +161,7 @@ class Income(models.Model):
             default=Decimal('0.00')
             )
     date = models.DateField()
+    objects = FilterQuerySet.as_manager()
 
 
 class Expense(models.Model):
@@ -128,6 +182,7 @@ class Expense(models.Model):
             default=Decimal('0.00')
             )
     date = models.DateField()
+    objects = FilterQuerySet.as_manager()
 
 
 class SavingsGoal(models.Model):

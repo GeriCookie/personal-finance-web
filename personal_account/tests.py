@@ -20,26 +20,20 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
     def test_saving_and_retrieving_incomes(self):
         balance = Balance()
         balance.save()
-        category = Category.objects.filter(name='Salary').first()
-        if not category:
-            category = Category.objects.create(name='Salary')
-        Income.objects.create(
+        category = Category.objects.create_category('Salary')
+        Balance.objects.create_income(
                 category=category,
                 amount=1000,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Bonus').first()
-        if not category:
-            category = Category.objects.create(name='Bonus')
-        Income.objects.create(
+        category = Category.objects.create_category('Bonus')
+        Balance.objects.create_income(
                 category=category,
                 amount=2000,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(income_added=True)
         saved_balance = Balance.objects.first()
         self.assertEqual(saved_balance, balance)
 
@@ -66,26 +60,20 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
     def test_saving_and_retrieving_expenses(self):
         balance = Balance()
         balance.save()
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(expense_added=True)
         saved_balance = Balance.objects.first()
         self.assertEqual(saved_balance, balance)
         saved_expenses = Expense.objects.all()
@@ -95,7 +83,6 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         second_saved_expense = saved_expenses[1]
         self.assertEqual(first_saved_expense.category.name, 'Food')
         self.assertEqual(first_saved_expense.amount, 10)
-        print(first_saved_expense.date)
         self.assertEqual(
                     first_saved_expense.date,
                     date(2017, 5, 24)
@@ -121,47 +108,35 @@ class BalanceViewTest(TestCase):
 
     def test_displays_only_expenses_for_that_balance(self):
         correct_balance = Balance.objects.create()
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
         other_balance = Balance.objects.create()
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Expense.objects.create(
+        category = Category.objects.create_category('Water')
+        Balance.objects.create_expense(
                 category=category,
                 amount=3,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=other_balance
                 )
-        other_balance.save(expense_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Expense.objects.create(
+        category = Category.objects.create_category('School')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=other_balance
                 )
-        other_balance.save(expense_added=True)
 
         response = self.client.get(
                 f'/balance/{correct_balance.id}/expenses/'
@@ -175,26 +150,20 @@ class BalanceViewTest(TestCase):
     def test_balance_values_are_calculated_right(self):
         balance = Balance()
         balance.save()
-        category = Category.objects.filter(name='Salary').first()
-        if not category:
-            category = Category.objects.create(name='Salary')
-        Income.objects.create(
+        category = Category.objects.create_category('Salary')
+        Balance.objects.create_income(
                 category=category,
                 amount=1000,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Bonus').first()
-        if not category:
-            category = Category.objects.create(name='Bonus')
-        Income.objects.create(
+        category = Category.objects.create_category('Bonus')
+        Balance.objects.create_income(
                 category=category,
                 amount=2000,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(income_added=True)
 
         saved_balance = Balance.objects.first()
         self.assertEqual(saved_balance, balance)
@@ -202,26 +171,20 @@ class BalanceViewTest(TestCase):
         self.assertEqual(saved_balance.total_income, 3000)
         self.assertEqual(saved_balance.total_amount, 3000)
 
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=100,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Present').first()
-        if not category:
-            category = Category.objects.create(name='Present')
-        Expense.objects.create(
+        category = Category.objects.create_category('Present')
+        Balance.objects.create_expense(
                 category=category,
                 amount=200,
-                date=datetime.strptime('05/24/2017', '%m/%d/%Y'),
+                date='05/24/2017',
                 balance=balance
                 )
-        balance.save(expense_added=True)
 
         saved_balance = Balance.objects.first()
         self.assertEqual(saved_balance, balance)
@@ -323,46 +286,34 @@ class IncomesByDayView(TestCase):
 
     def test_incomes_daily_view(self):
         balance = Balance.objects.create()
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Income.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Income.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_income(
                 category=category,
                 amount=20,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Income.objects.create(
+        category = Category.objects.create_category('Water')
+        Balance.objects.create_income(
                 category=category,
                 amount=3,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Income.objects.create(
+        category = Category.objects.create_category('School')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=balance
                 )
-        balance.save(income_added=True)
         today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
         response = self.client.get(
                 f'/balance/{balance.id}/income/{today_str}/'
@@ -375,46 +326,36 @@ class IncomesByDayView(TestCase):
     def test_incomes_weekly_view(self):
         balance = Balance.objects.create()
         prev_week_day = datetime.today() - timedelta(days=7)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Income.objects.create(
+        prev_week_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=7), '%m/%d/%Y')
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Income.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_income(
                 category=category,
                 amount=20,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Income.objects.create(
+        category = Category.objects.create_category('Water')
+        Balance.objects.create_income(
                 category=category,
                 amount=3,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Income.objects.create(
+        category = Category.objects.create_category('School')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
         start_week = prev_week_day - timedelta(days=prev_week_day.weekday())
         end_week = start_week + timedelta(days=6)
         start_week_str = datetime.strftime(start_week, '%Y-%m-%d')
@@ -431,46 +372,22 @@ class IncomesByDayView(TestCase):
     def test_income_monthly_view(self):
         balance = Balance.objects.create()
         prev_month_day = datetime.today() - timedelta(days=30)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Income.objects.create(
+        prev_month_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=30), '%m/%d/%Y')
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=prev_month_day,
+                date=prev_month_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Income.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_income(
                 category=category,
                 amount=20,
-                date=prev_month_day,
+                date=prev_month_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Income.objects.create(
-                category=category,
-                amount=3,
-                date=prev_month_day,
-                balance=balance
-                )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Income.objects.create(
-                category=category,
-                amount=10,
-                date=prev_month_day,
-                balance=balance
-                )
-        balance.save(income_added=True)
         monthdays = monthrange(
                 prev_month_day.year, prev_month_day.month)
         start_month_date = date(
@@ -485,53 +402,26 @@ class IncomesByDayView(TestCase):
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
-        self.assertContains(response, '|| Water: 3')
-        self.assertContains(
-                response, '|| School: 10')
 
     def test_income_yearly_view(self):
         balance = Balance.objects.create()
         prev_year_day = datetime.today() - timedelta(days=365)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Income.objects.create(
+        prev_year_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=365), '%m/%d/%Y')
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_income(
                 category=category,
                 amount=10,
-                date=prev_year_day,
+                date=prev_year_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Income.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_income(
                 category=category,
                 amount=20,
-                date=prev_year_day,
+                date=prev_year_day_str,
                 balance=balance
                 )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Income.objects.create(
-                category=category,
-                amount=3,
-                date=prev_year_day,
-                balance=balance
-                )
-        balance.save(income_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Income.objects.create(
-                category=category,
-                amount=10,
-                date=prev_year_day,
-                balance=balance
-                )
-        balance.save(income_added=True)
         start_year_date = date(
                 prev_year_day.year, 1, 1)
         start_prev_y = datetime.strftime(start_year_date, '%Y-%m-%d')
@@ -544,9 +434,6 @@ class IncomesByDayView(TestCase):
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
-        self.assertContains(response, '|| Water: 3')
-        self.assertContains(
-                response, '|| School: 10')
 
 
 class NewExpenseTest(TestCase):
@@ -598,46 +485,34 @@ class ExpensesByDayView(TestCase):
 
     def test_expenses_daily_view(self):
         correct_balance = Balance.objects.create()
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Expense.objects.create(
+        category = Category.objects.create_category('Water')
+        Balance.objects.create_expense(
                 category=category,
                 amount=3,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Expense.objects.create(
+        category = Category.objects.create_category('School')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=datetime.today(),
+                date=datetime.strftime(datetime.today(), '%m/%d/%Y'),
                 balance=correct_balance
                 )
-        correct_balance.save(expense_added=True)
         today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
         response = self.client.get(
                 f'/balance/{correct_balance.id}/expenses/{today_str}/'
@@ -650,46 +525,22 @@ class ExpensesByDayView(TestCase):
     def test_expenses_weekly_view(self):
         balance = Balance.objects.create()
         prev_week_day = datetime.today() - timedelta(days=7)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        prev_week_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=7), '%m/%d/%Y')
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=prev_week_day,
+                date=prev_week_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Expense.objects.create(
-                category=category,
-                amount=3,
-                date=prev_week_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Expense.objects.create(
-                category=category,
-                amount=10,
-                date=prev_week_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
         start_week = prev_week_day - timedelta(days=prev_week_day.weekday())
         end_week = start_week + timedelta(days=6)
         start_week_str = datetime.strftime(start_week, '%Y-%m-%d')
@@ -699,53 +550,26 @@ class ExpensesByDayView(TestCase):
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(response, '|| Movie: 20')
-        self.assertContains(response, '|| Water: 3')
-        self.assertContains(
-                response, '|| School: 10')
 
     def test_expenses_monthly_view(self):
         balance = Balance.objects.create()
+        prev_month_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=30), '%m/%d/%Y')
         prev_month_day = datetime.today() - timedelta(days=30)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=prev_month_day,
+                date=prev_month_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=prev_month_day,
+                date=prev_month_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Expense.objects.create(
-                category=category,
-                amount=3,
-                date=prev_month_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Expense.objects.create(
-                category=category,
-                amount=10,
-                date=prev_month_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
         monthdays = monthrange(
                 prev_month_day.year, prev_month_day.month)
         start_month_date = date(
@@ -760,53 +584,26 @@ class ExpensesByDayView(TestCase):
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
-        self.assertContains(response, '|| Water: 3')
-        self.assertContains(
-                response, '|| School: 10')
 
     def test_expenses_yearly_view(self):
         balance = Balance.objects.create()
         prev_year_day = datetime.today() - timedelta(days=365)
-        category = Category.objects.filter(name='Food').first()
-        if not category:
-            category = Category.objects.create(name='Food')
-        Expense.objects.create(
+        prev_year_day_str = datetime.strftime(
+                datetime.today() - timedelta(days=365), '%m/%d/%Y')
+        category = Category.objects.create_category('Food')
+        Balance.objects.create_expense(
                 category=category,
                 amount=10,
-                date=prev_year_day,
+                date=prev_year_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Movie').first()
-        if not category:
-            category = Category.objects.create(name='Movie')
-        Expense.objects.create(
+        category = Category.objects.create_category('Movie')
+        Balance.objects.create_expense(
                 category=category,
                 amount=20,
-                date=prev_year_day,
+                date=prev_year_day_str,
                 balance=balance
                 )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='Water').first()
-        if not category:
-            category = Category.objects.create(name='Water')
-        Expense.objects.create(
-                category=category,
-                amount=3,
-                date=prev_year_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
-        category = Category.objects.filter(name='School').first()
-        if not category:
-            category = Category.objects.create(name='School')
-        Expense.objects.create(
-                category=category,
-                amount=10,
-                date=prev_year_day,
-                balance=balance
-                )
-        balance.save(expense_added=True)
         start_year_date = date(
                 prev_year_day.year, 1, 1)
         start_prev_y = datetime.strftime(start_year_date, '%Y-%m-%d')
@@ -819,6 +616,3 @@ class ExpensesByDayView(TestCase):
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
-        self.assertContains(response, '|| Water: 3')
-        self.assertContains(
-                response, '|| School: 10')
