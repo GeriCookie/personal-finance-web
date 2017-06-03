@@ -36,10 +36,25 @@ INSTALLED_APPS = [
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'personal_account',
-        'rest_framework',
+        'django.contrib.sites',
+
         'django_filters',
+
+        'personal_account',
+        'accounts',
+
+        'rest_framework',
+        'rest_framework.authtoken',
+        'rest_auth',
+        'rest_auth.registration',
+
+        'allauth',
+        'allauth.account',
+        'allauth.socialaccount',
+        'allauth.socialaccount.providers.facebook',
         ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
         'django.middleware.security.SecurityMiddleware',
@@ -127,7 +142,16 @@ REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': (
             'rest_framework.filters.DjangoFilterBackend',
             'rest_framework.filters.SearchFilter'),
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework.authentication.SessionAuthentication',
+            'rest_framework.authentication.TokenAuthentication',
+            )
+            
         }
+
+LOGIN_REDIRECT_URL = '/'
+
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
 try:

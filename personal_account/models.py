@@ -3,6 +3,11 @@ from decimal import Decimal
 from django.db.models import Sum, F
 from utils import datehelper as helper
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from django.contrib.auth.models import User
+
 
 class CategoryManager(models.Manager):
 
@@ -144,7 +149,18 @@ class Balance(models.Model):
             decimal_places=2,
             default=Decimal(0.00)
             )
+    owner = models.OneToOneField(User, on_delete=models.CASCADE)
     objects = BalanceManager()
+
+
+@receiver(post_save, sender=User)
+def create_user_balance(sender, instance, created, **kwargs):
+    if created:
+        Balance.objects.create(owner=instance)
+
+@receiver(post_save, sender=User)
+def save_user_balance(sender, instance, **kwargs):
+    instance.balance.save()
 
 
 class Category(models.Model):

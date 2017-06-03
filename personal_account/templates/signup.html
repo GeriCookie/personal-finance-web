@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block header_text %}Sign up{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12 col-sm-6 col-sm-offset-3 text-center">
+            <form method="POST" class="form">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input type="text" class="form-control" name="username" maxlength="150" autofocus="" required placeholder="Enter Username" >
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input type="password" class="form-control" name="password1" required placeholder="Enter Password">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <input type="password" class="form-control" name="password2" required placeholder="Repeat Password"/>
+                    </div>
+                </div>
+
+                <button class="btn btn-success">Sign up</button>
+                <input type="reset" class="btn btn-warning" value="Clear" />
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

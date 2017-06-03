@@ -2,7 +2,9 @@ from django.shortcuts import redirect, render
 from personal_account.models import Balance, Category
 from utils import datehelper
 
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def home_page(request):
     return render(request, 'home.html')
 

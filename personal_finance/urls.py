@@ -18,8 +18,11 @@ from django.contrib import admin
 from personal_account import views as balance_views
 from personal_account import urls as balance_urls
 
+from accounts import urls as account_urls
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', balance_views.home_page, name='home'),
     url(r'^balance/', include(balance_urls)),
+    url(r'^accounts/', include(account_urls)),
 ]

@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from personal_account import views, views_api
 
+
 urlpatterns = [
     url(r'^new$', views.new_balance, name='new_balance'),
     url(r'^(\d+)/$',
