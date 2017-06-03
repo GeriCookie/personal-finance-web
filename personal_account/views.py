@@ -1,8 +1,6 @@
 from django.shortcuts import redirect, render
 from personal_account.models import Balance, Category
-from datetime import datetime, timedelta
-from datetime import date as new_date
-from calendar import monthrange
+from utils import datehelper
 
 
 def home_page(request):
@@ -35,28 +33,7 @@ def new_balance(request):
 def income(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     incomes = balance.incomes.all().select_related('category')
-    days = {}
-    days['today'] = datetime.strftime(datetime.today(), '%Y-%m-%d')
-    start_week = datetime.today() - timedelta(days=datetime.today().weekday())
-    end_week = start_week + timedelta(days=6)
-    days['start_week'] = datetime.strftime(start_week, '%Y-%m-%d')
-    days['end_week'] = datetime.strftime(end_week, '%Y-%m-%d')
-    monthdays = monthrange(datetime.today().year, datetime.today().month)
-    start_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            1)
-    end_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            monthdays[1]
-    )
-    days['start_month'] = datetime.strftime(start_month_date, '%Y-%m-%d')
-    days['end_month'] = datetime.strftime(end_month_date, '%Y-%m-%d')
-    start_year = new_date(datetime.today().year, 1, 1)
-    end_year = new_date(datetime.today().year, 12, 31)
-    days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
-    days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
+    days = datehelper.days_income_expense_view()
     if request.method == 'POST':
         category_name = request.POST.get('income_category', '')
         amount = request.POST.get('income_amount', '')
@@ -78,14 +55,10 @@ def income(request, balance_id):
 
 def daily_income(request, balance_id, date):
     balance = Balance.objects.get(id=balance_id)
-    date = datetime.strptime(date, '%Y-%m-%d')
     incomes = balance.incomes.by_day(
                 date).amount_per_category()
     total_income = incomes.total_amount()
-    days = {}
-    days['current_day'] = datetime.strftime(date, '%d %b %Y')
-    days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
-    days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
+    days = datehelper.days_income_expense_daily_view(date)
     return render(request, 'income_daily.html', {
         'balance': balance,
         'incomes': incomes,
@@ -96,31 +69,10 @@ def daily_income(request, balance_id, date):
 
 def weekly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
-    days = {}
-
-    days['current_week_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_week_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    days['prev_week_end'] = datetime.strftime(
-            start_date - timedelta(days=1), '%Y-%m-%d'
-    )
-    days['prev_week_start'] = datetime.strftime(
-            start_date - timedelta(days=7), '%Y-%m-%d'
-    )
-    days['next_week_start'] = datetime.strftime(
-            end_date + timedelta(days=1), '%Y-%m-%d'
-    )
-    days['next_week_end'] = datetime.strftime(
-            end_date + timedelta(days=7), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_weekly_view(start_date, end_date)
     return render(request, 'income_weekly.html', {
         'balance': balance,
         'incomes': incomes,
@@ -131,39 +83,10 @@ def weekly_income(request, balance_id, start_date, end_date):
 
 def montly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
-    days = {}
-
-    days['current_month_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_month_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    prev_month_end_date = start_date - timedelta(days=1)
-    days['prev_month_end'] = datetime.strftime(
-            prev_month_end_date, '%Y-%m-%d'
-    )
-    prev_month_days = monthrange(
-            prev_month_end_date.year,
-            prev_month_end_date.month)
-    days['prev_month_start'] = datetime.strftime(
-            start_date - timedelta(days=prev_month_days[1]), '%Y-%m-%d'
-    )
-    next_month_start_date = end_date + timedelta(days=1)
-    days['next_month_start'] = datetime.strftime(
-            next_month_start_date, '%Y-%m-%d'
-    )
-    next_month_days = monthrange(
-            next_month_start_date.year,
-            next_month_start_date.month)
-    days['next_month_end'] = datetime.strftime(
-            end_date + timedelta(days=next_month_days[1]), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_monthly_view(start_date, end_date)
     return render(request, 'income_monthly.html', {
         'balance': balance,
         'incomes': incomes,
@@ -174,33 +97,10 @@ def montly_income(request, balance_id, start_date, end_date):
 
 def yearly_income(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
-    days = {}
-
-    days['current_year_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_year_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    prev_year_end_date = start_date - timedelta(days=1)
-    days['prev_year_end'] = datetime.strftime(
-            prev_year_end_date, '%Y-%m-%d'
-    )
-    days['prev_year_start'] = datetime.strftime(
-            new_date(prev_year_end_date.year, 1, 1), '%Y-%m-%d'
-    )
-    next_year_start_date = end_date + timedelta(days=1)
-    days['next_year_start'] = datetime.strftime(
-            next_year_start_date, '%Y-%m-%d'
-    )
-    days['next_year_end'] = datetime.strftime(
-            new_date(next_year_start_date.year, 12, 31), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_yearly_view(start_date, end_date)
     return render(request, 'income_yearly.html', {
         'balance': balance,
         'incomes': incomes,
@@ -212,28 +112,7 @@ def yearly_income(request, balance_id, start_date, end_date):
 def expenses(request, balance_id):
     balance = Balance.objects.get(id=balance_id)
     expenses = balance.expenses.all().select_related('category')
-    days = {}
-    days['today'] = datetime.strftime(datetime.today(), '%Y-%m-%d')
-    start_week = datetime.today() - timedelta(days=datetime.today().weekday())
-    end_week = start_week + timedelta(days=6)
-    days['start_week'] = datetime.strftime(start_week, '%Y-%m-%d')
-    days['end_week'] = datetime.strftime(end_week, '%Y-%m-%d')
-    monthdays = monthrange(datetime.today().year, datetime.today().month)
-    start_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            1)
-    end_month_date = new_date(
-            datetime.today().year,
-            datetime.today().month,
-            monthdays[1]
-    )
-    days['start_month'] = datetime.strftime(start_month_date, '%Y-%m-%d')
-    days['end_month'] = datetime.strftime(end_month_date, '%Y-%m-%d')
-    start_year = new_date(datetime.today().year, 1, 1)
-    end_year = new_date(datetime.today().year, 12, 31)
-    days['start_year'] = datetime.strftime(start_year, '%Y-%m-%d')
-    days['end_year'] = datetime.strftime(end_year, '%Y-%m-%d')
+    days = datehelper.days_income_expense_view()
     if request.method == 'POST':
         category_name = request.POST.get('expense_category', '')
         amount = request.POST.get('expense_amount', '')
@@ -255,13 +134,9 @@ def expenses(request, balance_id):
 
 def daily_expenses(request, balance_id, date):
     balance = Balance.objects.get(id=balance_id)
-    date = datetime.strptime(date, '%Y-%m-%d')
     expenses = balance.expenses.by_day(date).amount_per_category()
     total_expenses = expenses.total_amount()
-    days = {}
-    days['current_day'] = datetime.strftime(date, '%d %b %Y')
-    days['prev_day'] = datetime.strftime(date - timedelta(days=1), '%Y-%m-%d')
-    days['next_day'] = datetime.strftime(date + timedelta(days=1), '%Y-%m-%d')
+    days = datehelper.days_income_expense_daily_view(date)
     return render(request, 'expenses_daily.html', {
         'balance': balance,
         'expenses': expenses,
@@ -272,31 +147,10 @@ def daily_expenses(request, balance_id, date):
 
 def weekly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()
-    days = {}
-
-    days['current_week_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_week_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    days['prev_week_end'] = datetime.strftime(
-            start_date - timedelta(days=1), '%Y-%m-%d'
-    )
-    days['prev_week_start'] = datetime.strftime(
-            start_date - timedelta(days=7), '%Y-%m-%d'
-    )
-    days['next_week_start'] = datetime.strftime(
-            end_date + timedelta(days=1), '%Y-%m-%d'
-    )
-    days['next_week_end'] = datetime.strftime(
-            end_date + timedelta(days=7), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_weekly_view(start_date, end_date)
     return render(request, 'expenses_weekly.html', {
         'balance': balance,
         'expenses': expenses,
@@ -307,39 +161,10 @@ def weekly_expenses(request, balance_id, start_date, end_date):
 
 def montly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()
-    days = {}
-
-    days['current_month_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_month_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    prev_month_end_date = start_date - timedelta(days=1)
-    days['prev_month_end'] = datetime.strftime(
-            prev_month_end_date, '%Y-%m-%d'
-    )
-    prev_month_days = monthrange(
-            prev_month_end_date.year,
-            prev_month_end_date.month)
-    days['prev_month_start'] = datetime.strftime(
-            start_date - timedelta(days=prev_month_days[1]), '%Y-%m-%d'
-    )
-    next_month_start_date = end_date + timedelta(days=1)
-    days['next_month_start'] = datetime.strftime(
-            next_month_start_date, '%Y-%m-%d'
-    )
-    next_month_days = monthrange(
-            next_month_start_date.year,
-            next_month_start_date.month)
-    days['next_month_end'] = datetime.strftime(
-            end_date + timedelta(days=next_month_days[1]), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_monthly_view(start_date, end_date)
     return render(request, 'expenses_monthly.html', {
         'balance': balance,
         'expenses': expenses,
@@ -350,33 +175,10 @@ def montly_expenses(request, balance_id, start_date, end_date):
 
 def yearly_expenses(request, balance_id, start_date, end_date):
     balance = Balance.objects.get(id=balance_id)
-    start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()
-    days = {}
-
-    days['current_year_start'] = datetime.strftime(
-            start_date, '%d %b %Y'
-    )
-    days['current_year_end'] = datetime.strftime(
-            end_date, '%d %b %Y'
-    )
-    prev_year_end_date = start_date - timedelta(days=1)
-    days['prev_year_end'] = datetime.strftime(
-            prev_year_end_date, '%Y-%m-%d'
-    )
-    days['prev_year_start'] = datetime.strftime(
-            new_date(prev_year_end_date.year, 1, 1), '%Y-%m-%d'
-    )
-    next_year_start_date = end_date + timedelta(days=1)
-    days['next_year_start'] = datetime.strftime(
-            next_year_start_date, '%Y-%m-%d'
-    )
-    days['next_year_end'] = datetime.strftime(
-            new_date(next_year_start_date.year, 12, 31), '%Y-%m-%d'
-    )
+    days = datehelper.days_income_expense_yearly_view(start_date, end_date)
     return render(request, 'expenses_yearly.html', {
         'balance': balance,
         'expenses': expenses,

@@ -1,7 +1,7 @@
 from django.db import models
 from decimal import Decimal
-from datetime import date, datetime
 from django.db.models import Sum, F
+from utils import datehelper as helper
 
 
 class CategoryManager(models.Manager):
@@ -36,7 +36,9 @@ class BalanceManager(models.Manager):
     def create_income(self, **kwargs):
         category = kwargs.get('category')
         amount = kwargs.get('amount')
-        date = datetime.strptime(kwargs.get('date'), '%m/%d/%Y')
+        date = kwargs.get('date')
+        if type(date) is str:
+            date = helper.from_str_to_date(date, '%m/%d/%Y')
         balance = kwargs.get('balance')
         Income.objects.create(
                 category=category,
@@ -51,7 +53,9 @@ class BalanceManager(models.Manager):
     def create_expense(self, **kwargs):
         category = kwargs.get('category')
         amount = kwargs.get('amount')
-        date = datetime.strptime(kwargs.get('date'), '%m/%d/%Y')
+        date = kwargs.get('date')
+        if type(date) is str:
+            date = helper.from_str_to_date(date, '%m/%d/%Y')
         balance = kwargs.get('balance')
         Expense.objects.create(
                 category=category,
@@ -67,7 +71,7 @@ class BalanceManager(models.Manager):
         savings_goal = balance.savings_goals.filter(completed=False).first()
         days_by_end_goal_date = 1
         savings_amount = 0
-        today = date.today()
+        today = helper.today()
         if savings_goal:
             end_date = savings_goal.end_date
             days_by_end_goal_date = (end_date - today).days
@@ -90,9 +94,15 @@ class BalanceManager(models.Manager):
 class FilterQuerySet(models.QuerySet):
 
     def by_day(self, day):
+        if type(day) is str:
+            day = helper.from_str_to_date(day, '%Y-%m-%d')
         return self.filter(date=day)
 
     def date_range(self, start_date, end_date):
+        if type(start_date) is str:
+            start_date = helper.from_str_to_date(start_date, '%Y-%m-%d')
+        if type(end_date) is str:
+            end_date = helper.from_str_to_date(end_date, '%Y-%m-%d')
         return self.filter(date__range=[start_date, end_date])
 
     def amount_per_category(self):
