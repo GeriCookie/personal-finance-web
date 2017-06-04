@@ -43,6 +43,7 @@ INSTALLED_APPS = [
         'models',
         'personal_finance',
         'personal_account',
+        'personal_account_api',
         'accounts',
 
         'rest_framework',

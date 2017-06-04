@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from personal_account import views as balance_views
 from personal_account import urls as balance_urls
+from personal_account_api import urls as api_urls
 
 from accounts import urls as account_urls
 
@@ -25,4 +26,5 @@ urlpatterns = [
     url(r'^$', balance_views.home_page, name='home'),
     url(r'^balance/', include(balance_urls)),
     url(r'^accounts/', include(account_urls)),
+    url(r'^api/', include(api_urls)),
 ]

@@ -1,9 +1,9 @@
 from models.models import Balance
 
-from personal_account.serializers import BalanceSerializer, IncomeSerializer,\
+from .serializers import BalanceSerializer, IncomeSerializer,\
         IncomesByDatesSerializer, ExpensesByDatesSerializer,\
         ExpenseSerializer, SavingsGoalSerializer, BudgetSerializer
-from personal_account.filters import IncomesFilter, ExpensesFilter
+from .filters import IncomesFilter, ExpensesFilter
 
 from rest_framework import generics, permissions
 from django.db.models import Sum
