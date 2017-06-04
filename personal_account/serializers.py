@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from personal_account.models import Balance, Income, Expense, Category, \
-                                                    SavingsGoal
+                                                    SavingsGoal, Budget
 
 
 class CategorySerializer(serializers.Serializer):
@@ -26,7 +26,6 @@ class IncomeSerializer(serializers.ModelSerializer):
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
             category = Category.objects.create(name=category_data['name'])
-        print(self.context['request'].user)
         balance = self.context['request'].user.balance
         income = Balance.objects.create_income(
                 category=category, balance=balance, **validated_data)
@@ -74,14 +73,30 @@ class SavingsGoalSerializer(serializers.ModelSerializer):
         return savings_goal
 
 
+class BudgetSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Budget
+        fields = ('id', 'amount', 'end_date', 'completed')
+
+    def create(self, validated_data):
+        balance = self.context['request'].user.balance
+        budget = Balance.objects.create_budget(
+                balance=balance, **validated_data)
+        return budget
+
+
 class BalanceSerializer(serializers.ModelSerializer):
     incomes = IncomeSerializer(many=True, read_only=True)
     expenses = ExpenseSerializer(many=True, read_only=True)
     savings_goals = SavingsGoalSerializer(many=True, read_only=True)
+    budget = BudgetSerializer(many=True, read_only=True)
 
     class Meta:
         model = Balance
         fields = ('id', 'total_income', 'total_expense',
                   'total_amount', 'recommended_expenses_per_day',
-                  'target_savings_month_end', 'total_savings',
-                  'incomes', 'expenses', 'savings_goals')
+                  'target_savings_budget_end', 'total_savings',
+                  'remaining_budget', 'average_expenses_per_day',
+                  'end_date_available_funds', 'incomes',
+                  'expenses', 'savings_goals', 'budget')

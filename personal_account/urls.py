@@ -45,6 +45,8 @@ urlpatterns = [
     url(r'^api/balance/expenses/$', views_api.ExpensesList.as_view()),
     url(r'^api/balance/savings-goals/$',
         views_api.SavingsGoalList.as_view()),
+    url(r'^api/balance/budget/$',
+        views_api.BudgetList.as_view()),
     url(r'^api/balance/expenses-by-date/$', views_api.ExpensesListByDate.as_view()),
     url(r'^api/balance/incomes-by-date/$', views_api.IncomesListByDate.as_view()),
 ]

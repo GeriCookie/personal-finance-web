@@ -1,7 +1,7 @@
 from personal_account.models import Balance
 from personal_account.serializers import BalanceSerializer, IncomeSerializer,\
         IncomesByDatesSerializer, ExpensesByDatesSerializer,\
-        ExpenseSerializer, SavingsGoalSerializer
+        ExpenseSerializer, SavingsGoalSerializer, BudgetSerializer
 from personal_account.filters import IncomesFilter, ExpensesFilter
 from rest_framework import generics, permissions
 from django.db.models import Sum
@@ -71,3 +71,12 @@ class SavingsGoalList(generics.ListCreateAPIView):
     def get_queryset(self):
         savings_goals = self.request.user.balance.savings_goals.all()
         return savings_goals
+
+
+class BudgetList(generics.ListCreateAPIView):
+    serializer_class = BudgetSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        budget = self.request.user.balance.budget.all()
+        return budget
