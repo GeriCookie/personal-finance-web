@@ -2,13 +2,13 @@
 {% block header_text %}Your Income{% endblock %}
 {% block header2_text %}Enter income{% endblock %}
 {% block content %}
-<a href="/balance/{{ balance.id }}/income/y/{{ days.prev_year_start }}/{{days.prev_year_end }}/"
+<a href="/balance/income/y/{{ days.prev_year_start }}/{{days.prev_year_end }}/"
    id="id_prev_year" class="btn btn-success">Previous year</a>
-<a href="/balance/{{ balance.id }}/income/y/{{ days.next_year_start }}/{{ days.next_year_end }}/"
+<a href="/balance/income/y/{{ days.next_year_start }}/{{ days.next_year_end }}/"
    id="id_next_year" class="btn btn-success">Next year</a>
-<a href="/balance/{{ balance.id }}/income/"
+<a href="/balance/income/"
    id="id_add_new_income" class="btn btn-success">Add Income</a>
-<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
 <h1>Year: <span id="id_year">{{ days.current_year_start }} - {{days.current_year_end }}</span></h1>
         <ul id="id_income_list" class="list list-balances">
             {% for income in incomes %}

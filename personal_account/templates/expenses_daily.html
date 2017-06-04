@@ -2,15 +2,15 @@
 {% block header_text %}Your Expenses{% endblock %}
 {% block header2_text %}Enter expense{% endblock %}
 {% block content %}
-<a href="/balance/{{ balance.id }}/expenses/{{ days.prev_day }}/"
+<a href="/balance/expenses/{{ days.prev_day }}/"
    id="id_prev_day" class="btn btn-success">Previous day</a>
-<a href="/balance/{{ balance.id }}/expenses/{{ days.next_day }}/"
+<a href="/balance/expenses/{{ days.next_day }}/"
    id="id_next_day" class="btn btn-success">Next day</a>
-<a href="/balance/{{ balance.id }}/expenses/"
+<a href="/balance/expenses/"
    id="id_add_new_expense" class="btn btn-success">Add Exoense</a>
-<a href="/balance/{{ balance.id }}/expenses/{{ days.start_week }}/{{ days.end_week}}/"
+<a href="/balance/expenses/{{ days.start_week }}/{{ days.end_week}}/"
    id="id_weekly_expenses" class="btn btn-success">Weekly expenses</a>
-<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
 <h1>Day:<span id="id_day">{{ days.current_day }}</span></h1> 
         <ul id="id_expenses_list" class="list list-balances">
             {% for expense in expenses %}

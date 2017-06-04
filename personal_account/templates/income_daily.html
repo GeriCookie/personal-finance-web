@@ -2,13 +2,13 @@
 {% block header_text %}Your Income{% endblock %}
 {% block header2_text %}Enter income{% endblock %}
 {% block content %}
-<a href="/balance/{{ balance.id }}/income/{{ days.prev_day }}/"
+<a href="/balance/income/{{ days.prev_day }}/"
    id="id_prev_day" class="btn btn-success">Previous day</a>
-<a href="/balance/{{ balance.id }}/income/{{ days.next_day }}/"
+<a href="/balance/income/{{ days.next_day }}/"
    id="id_next_day" class="btn btn-success">Next day</a>
-<a href="/balance/{{ balance.id }}/income/"
+<a href="/balance/income/"
    id="id_add_new_income" class="btn btn-success">Add income</a>
-<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
 <h1>Day:<span id="id_day">{{ days.current_day }}</span></h1> 
         <ul id="id_income_list" class="list list-balances">
             {% for income in incomes %}

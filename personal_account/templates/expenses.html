@@ -2,16 +2,16 @@
 {% block header_text %}Your Expenses{% endblock %}
 {% block header2_text %}Enter expense{% endblock %}
 {% block content %}
-<a href="/balance/{{ balance.id }}/expenses/{{ days.today }}/"
+<a href="/balance/expenses/{{ days.today }}/"
    id="id_daily_expenses" class="btn btn-success">Daily expenses</a>
-<a href="/balance/{{ balance.id }}/expenses/{{ days.start_week }}/{{ days.end_week}}/"
+<a href="/balance/expenses/{{ days.start_week }}/{{ days.end_week}}/"
    id="id_weekly_expenses" class="btn btn-success">Weekly expenses</a>
-<a href="/balance/{{ balance.id }}/expenses/m/{{ days.start_month }}/{{ days.end_month }}/"
+<a href="/balance/expenses/m/{{ days.start_month }}/{{ days.end_month }}/"
    id="id_montly_expenses" class="btn btn-success">Montly expenses</a>
-<a href="/balance/{{ balance.id }}/expenses/y/{{ days.start_year }}/{{ days.end_year }}/"
+<a href="/balance/expenses/y/{{ days.start_year }}/{{ days.end_year }}/"
    id="id_yearly_expenses" class="btn btn-success">Yearly expenses</a>
-<a href="/balance/{{ balance.id }}/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
-        <form method="POST" action="/balance/{{ balance.id }}/expenses/"
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+        <form method="POST" action="/balance/expenses/"
             class="form-inline text-center">
             <input name="expense_category" 
                    id="id_new_expense_category" 

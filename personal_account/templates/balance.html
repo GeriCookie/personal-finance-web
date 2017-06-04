@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header_text %} Your personal balance{% endblock %}
-{% block header2_text %}Here you can see how your expenses effect to your
+{% block header2_text %} Here you can see how your expenses effect to your
 balance {% endblock %}
 {% block content %}
 <div class="row">
@@ -9,13 +9,13 @@ balance {% endblock %}
         <h1>Total income: <span id="id_total_income">{{ balance.total_income}}</span>
         </h1>
         <h2>Incomes</h2>
-        <a href="/balance/{{ balance.id}}/income/" id="id_add_new_income"
+        <a href="/balance/income/" id="id_add_new_income"
                                                        class="btn btn-success">Add new income</a>
     </div>
     <div class="col-md-4 col-md text-center">
         <h1>Total expenses: <span id="id_total_expenses">{{ balance.total_expense }} </span></h1>
         <h2>Expenses</h2>
-        <a href="/balance/{{ balance.id }}/expenses/" id="id_add_new_expense"
+        <a href="/balance/expenses/" id="id_add_new_expense"
                                                          class="btn btn-success">Add new Expense</a>
     </div>
 </div>
