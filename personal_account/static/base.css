@@ -7,6 +7,22 @@
     padding: 0;
 }
 
+.list.list-horizontal .list-item {
+    display: inline-block;
+}
+
+.has-dropdown {
+    position: relative
+}
+
+.list-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: rgb(33, 196, 87);
+}
+
 .list > .list-item {
     margin-top: 15px
 }
@@ -15,9 +31,67 @@
     margin-top: 0
 }
 
-
 /* concrete styles */
 
 .list-balances {
     margin-top: 20px;
+}
+
+.nav {
+    text-align: center;
+    background-color: rgb(33, 196, 87);
+}
+
+.nav > .list {
+    height: 100%;
+}
+
+.nav .list {
+    font-size: 0;
+}
+
+.nav .list-item {
+    height: 100%;
+    font-size: 16px;
+    margin-top: 0;    
+    border-left: 1px solid #ccc;
+    vertical-align: middle;
+}
+
+.nav .list-item:last-of-type {
+    border-right: 1px solid #ccc;    
+}
+
+.nav .list-item .list-item {
+    border-left: none;
+    display: block;
+    border-top: 1px solid #ccc;
+}
+
+.nav .list-item .list-item:last-of-type {
+    border-right: none;
+    border-bottom: 1px solid #ccc;    
+}
+
+.nav .list-item .list-item {
+    font-size: 12px;
+}
+
+.nav a {
+    color: white;
+    display: block;
+    padding: 15px 25px;
+}
+
+.nav .list-item .list-item a {
+    padding: 10px 15px;
+}
+
+.nav:hover a {
+    text-decoration: none;
+}
+.nav a:hover {
+    text-decoration: none;
+    background-color: rgba(255, 255,255, 0.2);
+    cursor: pointer
 }

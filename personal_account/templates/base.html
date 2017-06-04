@@ -1,28 +1,76 @@
 <!DOCTYPE html>
 
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Personal Finance</title>
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
-    type="text/css">
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="/static/base.css" rel="stylesheet" />
 </head>
 
 <body>
-    <div class="container">
-        <div class="jumbotron">
-            <div class="text-center">
-                <h1>{% block header_text %}{% endblock %}</h1>
+    <div class="row">
+        <div class="col-xs-12">
+            <nav class="nav">
+                <ul class="list list-horizontal">
+                    <li class="list-item">
+                        <a href="/">Home</a>
+                    </li>
 
+                    <li class="list-item">
+                        <a href="/balance/1">Balance</a>
+                    </li>
+                    <li class="list-item">
+                        <a href="/balance/1/income">Income</a>
+                    </li>
+                    <li class="list-item">
+                        <a href="/balance/1/expenses/">Expenses</a>
+                    </li>
+                    <li class="list-item has-dropdown">
 
-                <h2>{% block header2_text %}{% endblock %}</h2>
-            </div>
+                        {% if user.username %}
+                            <a class="dropdown-toggle" href="#">{{ user.username }}</a>
+                            <ul class="list list-dropdown hidden">
+                                <li class="list-item">
+                                    <a href="/accounts/logout">Sign out</a>
+                                </li>
+                            </ul>
+
+                        {% else %}
+
+                            <a class="dropdown-toggle" href="#">User</a>
+                            <ul class="list list-dropdown hidden">
+                                <li class="list-item">
+                                    <a href="/accounts/signup">Sign up</a>
+                                </li>
+                                <li class="list-item">
+                                    <a href="/accounts/login">Sign in</a>
+                                </li>
+                            </ul>
+
+                        {% endif %}
+                    </li>
+                </ul>
+            </nav>
         </div>
-        {% block content %} {% endblock %}
     </div>
+    <div class="jumbotron">
+        <div class="text-center">
+            <h1>{% block header_text %}{% endblock %}</h1>
+
+
+            <h2>{% block header2_text %}{% endblock %}</h2>
+        </div>
+        <div>
+        </div>
+    </div>
+    {% block content %} {% endblock %}
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="/static/js/nav.js"></script>
 </body>
+
 </html>
