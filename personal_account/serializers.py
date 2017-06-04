@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from personal_account.models import Balance, Income, Expense, Category, \
-                                                    SavingsGoal, Budget
+
+from models.models import Balance, Income, Expense, \
+        Category, SavingsGoal, Budget
 
 
 class CategorySerializer(serializers.Serializer):
@@ -17,7 +18,7 @@ class CategorySerializer(serializers.Serializer):
 class IncomeSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
 
-    class Meta:
+    class meta:
         model = Income
         fields = ('id', 'category', 'amount', 'date')
 

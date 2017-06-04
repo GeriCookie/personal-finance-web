@@ -260,6 +260,9 @@ class Balance(models.Model):
     date_created = models.DateField(default=timezone.now)
     objects = BalanceManager()
 
+    class Meta(object):
+        app_label = 'personal_finance'
+
 
 @receiver(post_save, sender=User)
 def create_user_balance(sender, instance, created, **kwargs):
@@ -273,12 +276,20 @@ def save_user_balance(sender, instance, **kwargs):
 
 
 class Category(models.Model):
+
+    class Meta(object):
+        app_label = 'personal_finance'
+
     name = models.CharField(max_length=300, unique=True)
 
     objects = CategoryManager()
 
 
 class Income(models.Model):
+
+    class Meta(object):
+        app_label = 'personal_finance'
+
     balance = models.ForeignKey(
             Balance,
             default=None,
@@ -301,6 +312,10 @@ class Income(models.Model):
 
 
 class Expense(models.Model):
+
+    class Meta(object):
+        app_label = 'personal_finance'
+
     balance = models.ForeignKey(
             Balance,
             default=None,
@@ -323,6 +338,10 @@ class Expense(models.Model):
 
 
 class SavingsGoal(models.Model):
+
+    class Meta(object):
+        app_label = 'personal_finance'
+
     balance = models.ForeignKey(
             Balance,
             default=None,
@@ -340,6 +359,10 @@ class SavingsGoal(models.Model):
 
 
 class Budget(models.Model):
+
+    class Meta(object):
+        app_label = 'personal_finance'
+
     balance = models.ForeignKey(
             Balance,
             default=None,

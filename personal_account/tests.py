@@ -1,7 +1,8 @@
 from django.test import TestCase
-from personal_account.models import Income, Expense, Balance, Category
 from datetime import datetime, date, timedelta
 from calendar import monthrange
+
+from models.models import Balance, Income, Expense, Category
 
 
 class HomePageTest(TestCase):

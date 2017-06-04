@@ -1,8 +1,9 @@
 from django.shortcuts import redirect, render
-from personal_account.models import Balance, Category
+from django.contrib.auth.decorators import login_required
+
 from utils import datehelper
 
-from django.contrib.auth.decorators import login_required
+from models.models import Balance, Category
 
 
 def home_page(request):

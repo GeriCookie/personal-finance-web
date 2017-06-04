@@ -3,7 +3,7 @@ from datetime import datetime
 
 from rest_framework import filters
 
-from personal_account.models import Income, Expense
+from models.models import Income, Expense
 
 
 class IncomesFilter(filters.FilterSet):

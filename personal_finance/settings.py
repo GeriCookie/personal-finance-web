@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
         'django_filters',
 
+        'models',
+        'personal_finance',
         'personal_account',
         'accounts',
 
