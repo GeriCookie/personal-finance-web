@@ -4,36 +4,22 @@ from utils import datehelper
 
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def home_page(request):
     return render(request, 'home.html')
 
 
-def view_balance(request, balance_id):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def view_balance(request):
+    balance = request.user.balance
     return render(request, 'balance.html', {
         'balance': balance,
     })
 
 
-def new_balance(request):
-    balance = Balance.objects.create()
-    new_income_category = request.POST.get('income_category', '')
-    new_income_amount = request.POST.get('income_amount', '')
-    new_income_date = request.POST.get('income_date', '')
-    category = Category.objects.create_category(new_income_category)
-    Balance.objects.create_income(
-            category=category,
-            amount=new_income_amount,
-            date=new_income_date,
-            balance=balance
-    )
-
-    return redirect(f'/balance/{balance.id}/income/')
-
-
-def income(request, balance_id):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def income(request):
+    balance = request.user.balance
     incomes = balance.incomes.all().select_related('category')
     days = datehelper.days_income_expense_view()
     if request.method == 'POST':
@@ -55,8 +41,9 @@ def income(request, balance_id):
             })
 
 
-def daily_income(request, balance_id, date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def daily_income(request, date):
+    balance = request.user.balance
     incomes = balance.incomes.by_day(
                 date).amount_per_category()
     total_income = incomes.total_amount()
@@ -69,8 +56,9 @@ def daily_income(request, balance_id, date):
     })
 
 
-def weekly_income(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def weekly_income(request, start_date, end_date):
+    balance = request.user.balance
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
@@ -83,8 +71,9 @@ def weekly_income(request, balance_id, start_date, end_date):
     })
 
 
-def montly_income(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def montly_income(request, start_date, end_date):
+    balance = request.user.balance
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
@@ -97,8 +86,9 @@ def montly_income(request, balance_id, start_date, end_date):
     })
 
 
-def yearly_income(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def yearly_income(request, start_date, end_date):
+    balance = request.user.balance
     incomes = balance.incomes.date_range(
             start_date, end_date).amount_per_category()
     total_income = incomes.total_amount()
@@ -111,8 +101,9 @@ def yearly_income(request, balance_id, start_date, end_date):
     })
 
 
-def expenses(request, balance_id):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def expenses(request):
+    balance = request.user.balance
     expenses = balance.expenses.all().select_related('category')
     days = datehelper.days_income_expense_view()
     if request.method == 'POST':
@@ -134,8 +125,9 @@ def expenses(request, balance_id):
         })
 
 
-def daily_expenses(request, balance_id, date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def daily_expenses(request, date):
+    balance = request.user.balance
     expenses = balance.expenses.by_day(date).amount_per_category()
     total_expenses = expenses.total_amount()
     days = datehelper.days_income_expense_daily_view(date)
@@ -147,8 +139,9 @@ def daily_expenses(request, balance_id, date):
     })
 
 
-def weekly_expenses(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def weekly_expenses(request, start_date, end_date):
+    balance = request.user.balance
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()
@@ -161,8 +154,9 @@ def weekly_expenses(request, balance_id, start_date, end_date):
     })
 
 
-def montly_expenses(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def montly_expenses(request, start_date, end_date):
+    balance = request.user.balance
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()
@@ -175,8 +169,9 @@ def montly_expenses(request, balance_id, start_date, end_date):
     })
 
 
-def yearly_expenses(request, balance_id, start_date, end_date):
-    balance = Balance.objects.get(id=balance_id)
+@login_required
+def yearly_expenses(request, start_date, end_date):
+    balance = request.user.balance
     expenses = balance.expenses.date_range(
             start_date, end_date).amount_per_category()
     total_expenses = expenses.total_amount()

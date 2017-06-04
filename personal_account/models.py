@@ -45,7 +45,7 @@ class BalanceManager(models.Manager):
         if type(date) is str:
             date = helper.from_str_to_date(date, '%m/%d/%Y')
         balance = kwargs.get('balance')
-        Income.objects.create(
+        income = Income.objects.create(
                 category=category,
                 amount=amount,
                 date=date,
@@ -54,6 +54,7 @@ class BalanceManager(models.Manager):
         balance.total_income += Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()
+        return income
 
     def create_expense(self, **kwargs):
         category = kwargs.get('category')
@@ -62,7 +63,7 @@ class BalanceManager(models.Manager):
         if type(date) is str:
             date = helper.from_str_to_date(date, '%m/%d/%Y')
         balance = kwargs.get('balance')
-        Expense.objects.create(
+        expense = Expense.objects.create(
                 category=category,
                 amount=amount,
                 date=date,
@@ -71,6 +72,22 @@ class BalanceManager(models.Manager):
         balance.total_expense += Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()
+        return expense
+
+    def create_savings_goal(self, **kwargs):
+        amount = kwargs.get('amount')
+        date = kwargs.get('end_date')
+        if type(date) is str:
+            date = helper.from_str_to_date(date, '%m/%d/%Y')
+        balance = kwargs.get('balance')
+        savings_goal = SavingsGoal.objects.create(
+                amount=amount,
+                end_date=date,
+                balance=balance
+                )
+        self.calculate_balance_values(balance)
+        balance.save()
+        return savings_goal
 
     def calculate_balance_values(self, balance):
         savings_goal = balance.savings_goals.filter(completed=False).first()
@@ -93,7 +110,7 @@ class BalanceManager(models.Manager):
         if savings_goal and end_date != today:
             balance.recommended_expenses_per_day = (
                     balance.total_amount -
-                    balance.savings_amount) / days_by_end_goal_date
+                    savings_amount) / days_by_end_goal_date
 
 
 class FilterQuerySet(models.QuerySet):
@@ -157,6 +174,7 @@ class Balance(models.Model):
 def create_user_balance(sender, instance, created, **kwargs):
     if created:
         Balance.objects.create(owner=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_balance(sender, instance, **kwargs):

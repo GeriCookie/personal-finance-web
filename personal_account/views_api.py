@@ -3,7 +3,7 @@ from personal_account.serializers import BalanceSerializer, IncomeSerializer,\
         IncomesByDatesSerializer, ExpensesByDatesSerializer,\
         ExpenseSerializer, SavingsGoalSerializer
 from personal_account.filters import IncomesFilter, ExpensesFilter
-from rest_framework import generics
+from rest_framework import generics, permissions
 from django.db.models import Sum
 from django_filters import rest_framework as filters
 
@@ -11,79 +11,63 @@ from django_filters import rest_framework as filters
 class BalanceList(generics.ListCreateAPIView):
     queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 class BalanceDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_object(self):
+        return self.request.user.balance
 
 
 class IncomesList(generics.ListCreateAPIView):
     serializer_class = IncomeSerializer
-    lookup_url_kwarg = 'balance_id'
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        balance_id = self.kwargs.get(self.lookup_url_kwarg)
-        incomes = Balance.objects.get(id=balance_id).incomes.all()
+        incomes = self.request.user.balance.incomes.all()
         return incomes
-
-    def get_serializer_context(self):
-        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
 
 class IncomesListByDate(generics.ListAPIView):
     serializer_class = IncomesByDatesSerializer
-    lookup_url_kwarg = 'balance_id'
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = IncomesFilter
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        balance_id = self.kwargs.get(self.lookup_url_kwarg)
-        incomes = Balance.objects.get(id=balance_id).incomes.values(
+        incomes = self.request.user.balance.incomes.values(
                 'category__name').annotate(amount_per_category=Sum('amount'))
         return incomes
-
-    def get_serializer_context(self):
-        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
 
 class ExpensesList(generics.ListCreateAPIView):
     serializer_class = ExpenseSerializer
-    lookup_url_kwarg = 'balance_id'
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        balance_id = self.kwargs.get(self.lookup_url_kwarg)
-        expenses = Balance.objects.get(id=balance_id).expenses.all()
+        expenses = self.request.user.balance.expenses.all()
         return expenses
-
-    def get_serializer_context(self):
-        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
 
 class ExpensesListByDate(generics.ListAPIView):
     serializer_class = ExpensesByDatesSerializer
-    lookup_url_kwarg = 'balance_id'
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ExpensesFilter
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        balance_id = self.kwargs.get(self.lookup_url_kwarg)
-        expenses = Balance.objects.get(id=balance_id).expenses.values(
+        expenses = self.request.user.balance.expenses.values(
                 'category__name').annotate(amount_per_category=Sum('amount'))
         return expenses
-
-    def get_serializer_context(self):
-        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}
 
 
 class SavingsGoalList(generics.ListCreateAPIView):
     serializer_class = SavingsGoalSerializer
-    lookup_url_kwarg = 'balance_id'
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        balance_id = self.kwargs.get(self.lookup_url_kwarg)
-        savings_goals = Balance.objects.get(id=balance_id).savings_goals.all()
+        savings_goals = self.request.user.balance.savings_goals.all()
         return savings_goals
-
-    def get_serializer_context(self):
-        return {"balance_id": self.kwargs.get(self.lookup_url_kwarg)}

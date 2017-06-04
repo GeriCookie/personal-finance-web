@@ -26,11 +26,10 @@ class IncomeSerializer(serializers.ModelSerializer):
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
             category = Category.objects.create(name=category_data['name'])
-        balance_id = self.context["balance_id"]
-        balance = Balance.objects.get(id=balance_id)
-        income = Income.objects.create(
+        print(self.context['request'].user)
+        balance = self.context['request'].user.balance
+        income = Balance.objects.create_income(
                 category=category, balance=balance, **validated_data)
-        balance.save(income_added=True)
         return income
 
 
@@ -56,11 +55,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
             category = Category.objects.create(name=category_data['name'])
-        balance_id = self.context["balance_id"]
-        balance = Balance.objects.get(id=balance_id)
-        expense = Expense.objects.create(
+        balance = self.context['request'].user.balance
+        expense = Balance.objects.create_expense(
                 category=category, balance=balance, **validated_data)
-        balance.save(expense_added=True)
         return expense
 
 
@@ -71,11 +68,9 @@ class SavingsGoalSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount', 'end_date', 'completed')
 
     def create(self, validated_data):
-        balance_id = self.context["balance_id"]
-        balance = Balance.objects.get(id=balance_id)
-        savings_goal = SavingsGoal.objects.create(
+        balance = self.context['request'].user.balance
+        savings_goal = Balance.objects.create_savings_goal(
                 balance=balance, **validated_data)
-        balance.save(savings_goal_added=True)
         return savings_goal
 
 

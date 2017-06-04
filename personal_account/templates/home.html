@@ -3,28 +3,4 @@
 {% block header_text %}Start Your Personal Finance Balance{% endblock %}
 {% block header2_text %}First Enter your current income{% endblock %}
 {% block content %}
-<div class=text-center">
-        <form method="POST" action="/balance/new" 
-            class="form-inline text-center">
-            <input name="income_category" 
-                   id="id_new_income_category" 
-                   class="form-control input-lg"
-                   placeholder="Enter income category" />
-            <input name="income_amount" 
-                   id="id_new_income_amount" 
-                   class="form-control input-lg"
-                   type=number
-                   step=0.01 
-                   placeholder="amount" />
-            <input name="income_date"
-                   id="id_new_income_date"
-                   class="form-control input-lg"
-                   type=text
-                   placeholder="mm/dd/yyyy"/>
-            <input id="id_new_income_button" 
-                   class="btn btn-success"
-                   type="submit">
-            {% csrf_token %}
-        </form>
-</div>
 {% endblock %}
