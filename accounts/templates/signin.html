@@ -17,6 +17,12 @@
                         <input id="tb-password" type="password" class="form-control" name="password" required placeholder="Enter Password">
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+
 
                 <button class="btn btn-success" id="btn-sign-in">Sign In</button>
                 <input type="reset" class="btn btn-warning" value="Clear" />

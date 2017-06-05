@@ -10,7 +10,7 @@ def home_page(request):
     return render(request, 'home.html')
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def view_balance(request):
     balance = request.user.balance
     return render(request, 'balance.html', {
@@ -18,7 +18,7 @@ def view_balance(request):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def income(request):
     balance = request.user.balance
     incomes = balance.incomes.all().select_related('category')
@@ -42,7 +42,7 @@ def income(request):
             })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def daily_income(request, date):
     balance = request.user.balance
     incomes = balance.incomes.by_day(
@@ -57,7 +57,7 @@ def daily_income(request, date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def weekly_income(request, start_date, end_date):
     balance = request.user.balance
     incomes = balance.incomes.date_range(
@@ -72,7 +72,7 @@ def weekly_income(request, start_date, end_date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def montly_income(request, start_date, end_date):
     balance = request.user.balance
     incomes = balance.incomes.date_range(
@@ -87,7 +87,7 @@ def montly_income(request, start_date, end_date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def yearly_income(request, start_date, end_date):
     balance = request.user.balance
     incomes = balance.incomes.date_range(
@@ -102,7 +102,7 @@ def yearly_income(request, start_date, end_date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def expenses(request):
     balance = request.user.balance
     expenses = balance.expenses.all().select_related('category')
@@ -126,7 +126,7 @@ def expenses(request):
         })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def daily_expenses(request, date):
     balance = request.user.balance
     expenses = balance.expenses.by_day(date).amount_per_category()
@@ -140,7 +140,7 @@ def daily_expenses(request, date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def weekly_expenses(request, start_date, end_date):
     balance = request.user.balance
     expenses = balance.expenses.date_range(
@@ -155,7 +155,7 @@ def weekly_expenses(request, start_date, end_date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def montly_expenses(request, start_date, end_date):
     balance = request.user.balance
     expenses = balance.expenses.date_range(
@@ -170,7 +170,7 @@ def montly_expenses(request, start_date, end_date):
     })
 
 
-@login_required
+@login_required(login_url='/accounts/signin')
 def yearly_expenses(request, start_date, end_date):
     balance = request.user.balance
     expenses = balance.expenses.date_range(
