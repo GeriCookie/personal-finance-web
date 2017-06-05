@@ -22,33 +22,33 @@
                     </li>
 
                     <li class="list-item">
-                        <a href="/balance">Balance</a>
+                        <a href="/balance/" id="btn-nav-balance">Balance</a>
                     </li>
-                    <li class="list-item">
-                        <a href="/balance/income">Income</a>
+                    <li class="list-item" >
+                        <a href="/balance/income/" id="id_incomes">Income</a>
                     </li>
                     <li class="list-item">
                         <a href="/balance/expenses/">Expenses</a>
                     </li>
                     <li class="list-item has-dropdown">
-
                         {% if user.username %}
-                            <a class="dropdown-toggle" href="#">{{ user.username }}</a>
+
+                            <a id="btn-nav-users-toggle" class="dropdown-toggle" href="#">{{ user.username }}</a>
                             <ul class="list list-dropdown hidden">
                                 <li class="list-item">
-                                    <a href="/accounts/signout">Sign out</a>
+                                    <a id="btn-nav-signout" href="/accounts/signout">Sign out</a>
                                 </li>
                             </ul>
 
                         {% else %}
 
-                            <a class="dropdown-toggle" href="#">User</a>
+                            <a id="btn-nav-users-toggle" class="dropdown-toggle" href="#">User</a>
                             <ul class="list list-dropdown hidden">
                                 <li class="list-item">
-                                    <a href="/accounts/signup">Sign up</a>
+                                    <a href="/accounts/signup" id="btn-nav-sign-up">Sign up</a>
                                 </li>
                                 <li class="list-item">
-                                    <a href="/accounts/signin">Sign in</a>
+                                    <a href="/accounts/signin" id="btn-nav-sign-in">Sign in</a>
                                 </li>
                             </ul>
 

@@ -4,12 +4,12 @@ from selenium import webdriver
 import time
 import os
 from datetime import datetime, timedelta, date
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException
 from calendar import monthrange
+
 
 MAX_WAIT = 10
 
@@ -21,9 +21,87 @@ class NewVisitorTest(StaticLiveServerTestCase):
         staging_server = os.environ.get('STAGING_SERVER')
         if staging_server:
             self.live_server_url = 'http://' + staging_server
+        self.users_count = 0
 
     def tearDown(self):
         self.browser.quit()
+
+    def get_random_user(self):
+        username = 'user-%d' % self.users_count
+        self.users_count += 1
+        password = '123456qw'
+        return {
+            'username': username,
+            'password': password,
+        }
+
+    def init_user(self):
+        user = self.get_random_user()
+        self.signup_user(user)
+        self.signin_user(user)
+
+    def signup_user(self, user):
+        btn_nav_users_toggle = 'btn-nav-users-toggle'
+
+        self.click_on_button_with_id(btn_nav_users_toggle)
+
+        btn_nav_sign_up_id = 'btn-nav-sign-up'
+        btn_sign_up_id = 'btn-sign-up'
+        tb_username_id = 'tb-username'
+        tb_password1_id = 'tb-password1'
+        tb_password2_id = 'tb-password2'
+
+        # Register
+        self.click_on_button_with_id(btn_nav_sign_up_id)
+
+        tb_username = self.wait_for_element_on_page(tb_username_id)
+        tb_password1 = self.wait_for_element_on_page(tb_password1_id)
+        tb_password2 = self.wait_for_element_on_page(tb_password2_id)
+        tb_username.send_keys(user['username'])
+        tb_password1.send_keys(user['password'])
+        tb_password2.send_keys(user['password'])
+
+        self.click_on_button_with_id(btn_sign_up_id)
+
+    def signin_user(self, user):
+        btn_nav_users_toggle = 'btn-nav-users-toggle'
+
+        self.click_on_button_with_id(btn_nav_users_toggle)
+
+        btn_nav_sign_in_id = 'btn-nav-sign-in'
+        btn_sign_in_id = 'btn-sign-in'
+        tb_username_id = 'tb-username2'
+        tb_password_id = 'tb-password'
+
+        self.click_on_button_with_id(btn_nav_sign_in_id)
+
+        tb_username = self.wait_for_element_on_page(tb_username_id)
+        tb_password = self.browser.find_element_by_id(tb_password_id)
+
+        tb_username.send_keys(user['username'])
+        tb_password.send_keys(user['password'])
+
+        self.click_on_button_with_id(btn_sign_in_id)
+
+    def signout_user(self):
+        btn_nav_users_toggle = 'btn-nav-users-toggle'
+
+        self.click_on_button_with_id(btn_nav_users_toggle)
+
+        btn_nav_sign_out_id = 'btn-nav-sign-out'
+
+        self.click_on_button_with_id(btn_nav_sign_out_id)
+
+    def click_on_button_with_id(self, id):
+        while True:
+            try:
+                btn = self.wait_for_element_on_page(id)
+                if btn:
+                    btn.click()
+                return
+            except (StaleElementReferenceException) as e:
+                # print(e)
+                time.sleep(0.2)
 
     def wait_for_li_in_ul(self, ul_id, row_text):
         start_time = time.time()
@@ -73,12 +151,14 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
         self.browser.get(self.live_server_url)
+        self.init_user()
+
+        self.click_on_button_with_id('btn-nav-balance')
 
         # She notices the page title and header mentioned personal finance
         self.assertIn('Personal Finance', self.browser.title)
-        header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Personal Finance', header_text)
 
+        self.click_on_button_with_id('id_incomes')
         # She is invited to enter her income amount and category straight away
         income_inputbox = self.browser.find_element_by_id(
                 'id_new_income_category'
@@ -240,6 +320,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "30.00"
                 )
+
+        self.signout_user()
 
         # Cookie wonderss whether the site will remember her list.
         # Then she sees that the site has generated a unique URL for her --

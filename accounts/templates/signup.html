@@ -8,23 +8,23 @@
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-xs-12">
-                        <input type="text" class="form-control" name="username" maxlength="150" autofocus="" required placeholder="Enter Username" >
+                        <input id="tb-username" type="text" class="form-control" name="username" maxlength="150" autofocus="" required placeholder="Enter Username" >
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <input type="password" class="form-control" name="password1" required placeholder="Enter Password">
+                        <input id="tb-password1" type="password" class="form-control" name="password1" required placeholder="Enter Password">
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <input type="password" class="form-control" name="password2" required placeholder="Repeat Password"/>
+                        <input id="tb-password2" type="password" class="form-control" name="password2" required placeholder="Repeat Password"/>
                     </div>
                 </div>
 
-                <button class="btn btn-success">Sign up</button>
+                <button class="btn btn-success" id="btn-sign-up">Sign up</button>
                 <input type="reset" class="btn btn-warning" value="Clear" />
             </form>
         </div>

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block header_text %}Sign up{% endblock %}
+{% block header_text %}Sign in{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -8,17 +8,17 @@
                 {% csrf_token %}
                 <div class="row">
                     <div class="col-xs-12">
-                        <input type="text" class="form-control" name="username" maxlength="150" autofocus="" required placeholder="Enter Username" >
+                        <input id="tb-username2" type="text" class="form-control" name="username" maxlength="150" autofocus="" required placeholder="Enter Username" >
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-xs-12">
-                        <input type="password" class="form-control" name="password" required placeholder="Enter Password">
+                        <input id="tb-password" type="password" class="form-control" name="password" required placeholder="Enter Password">
                     </div>
                 </div>
 
-                <button class="btn btn-success">Sign In</button>
+                <button class="btn btn-success" id="btn-sign-in">Sign In</button>
                 <input type="reset" class="btn btn-warning" value="Clear" />
             </form>
         </div>
