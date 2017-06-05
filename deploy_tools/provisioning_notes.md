@@ -11,7 +11,8 @@ Provisioning a new site
 eg, on Ubuntu:
 
     sudo add-apt-repository ppa:fkrull/deadsnakes
-    sudo apt-get install nginx git python36 python3.6-venv
+    sudo apt-get install nginx git python3.6 python3.6-venv python3.6-dev
+    build-essentials libssl-dev libffi-dev libxml2-dev libxslt1-dev
 
 ## Nginx Virtual Host config
 
@@ -22,6 +23,7 @@ eg, on Ubuntu:
 
 * see gunicorn-systemd.template.service
 * replace SITENAME with, e.g., staging.my-domain.com
+* restart gunicorn after every deployment
 
 ## Folder structure:
 Assume we have a user account at /home/username
