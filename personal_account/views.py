@@ -105,9 +105,7 @@ def yearly_income(request, start_date, end_date):
 @login_required(login_url='/accounts/signin')
 def expenses(request):
     balance = request.user.balance
-    print(request.user)
     expenses = balance.expenses.all().select_related('category')
-    print(expenses)
     days = datehelper.days_income_expense_view()
     if request.method == 'POST':
         category_name = request.POST.get('expense_category', '')

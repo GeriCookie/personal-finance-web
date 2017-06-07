@@ -81,7 +81,6 @@ class BalanceManager(models.Manager):
                 balance.remaining_budget -= Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()
-        print(expense)
         return expense
 
     def create_savings_goal(self, **kwargs):

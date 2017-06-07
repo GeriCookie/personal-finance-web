@@ -1,26 +1,53 @@
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from datetime import datetime, date, timedelta
 from calendar import monthrange
 
+from django.contrib.auth import get_user_model
+import uuid
 from models.models import Balance, Income, Expense, Category
 
 
-class HomePageTest(TestCase):
+class BaseTestCase(TransactionTestCase):
+
+    def init_force_login(self):
+        User = get_user_model()
+        random_user = self.get_random_user()
+        self.user = User.objects.create_user(username=random_user['username'],
+                password=random_user['password'])
+
+        self.client.force_login(self.user)        
+
+    def get_random_user(self):
+        username = 'user-%s' % uuid.uuid4().__str__().replace('-', '')
+        # username = 'user-%d' % self.users_count
+        password = '123456qw'
+        return {
+            'username': username,
+            'password': password,
+        }
+
+    def setUp(self):
+        self.init_force_login()
+
+    def tearDown(self):
+        self.client.logout()
+
+
+class HomePageTest(BaseTestCase):
 
     def test_uses_home_template(self):
         response = self.client.get('/')
         self.assertTemplateUsed(response, 'home.html')
 
     def test_only_saves_items_when_necessary(self):
-        self.client.get('/')
+        self.client.get('/balance/income/')
         self.assertEqual(Income.objects.count(), 0)
 
 
-class BalanceIncomeAndExpensesModelTest(TestCase):
+class BalanceIncomeAndExpensesModelTest(BaseTestCase):
 
     def test_saving_and_retrieving_incomes(self):
-        balance = Balance()
-        balance.save()
+        balance = Balance.objects.get(owner=self.user)
         category = Category.objects.create_category('Salary')
         Balance.objects.create_income(
                 category=category,
@@ -59,8 +86,7 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         self.assertEqual(second_saved_income.balance, balance)
 
     def test_saving_and_retrieving_expenses(self):
-        balance = Balance()
-        balance.save()
+        balance = Balance.objects.get(owner=self.user)
         category = Category.objects.create_category('Food')
         Balance.objects.create_expense(
                 category=category,
@@ -98,59 +124,18 @@ class BalanceIncomeAndExpensesModelTest(TestCase):
         self.assertEqual(second_saved_expense.balance, balance)
 
 
-class BalanceViewTest(TestCase):
+class BalanceViewTest(BaseTestCase):
 
     def test_uses_balance_template(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         response = self.client.get(
-                f'/balance/{balance.id}/'
+                f'/balance/'
                 )
         self.assertTemplateUsed(response, 'balance.html')
 
-    def test_displays_only_expenses_for_that_balance(self):
-        correct_balance = Balance.objects.create()
-        category = Category.objects.create_category('Food')
-        Balance.objects.create_expense(
-                category=category,
-                amount=10,
-                date='05/24/2017',
-                balance=correct_balance
-                )
-        category = Category.objects.create_category('Movie')
-        Balance.objects.create_expense(
-                category=category,
-                amount=20,
-                date='05/24/2017',
-                balance=correct_balance
-                )
-        other_balance = Balance.objects.create()
-        category = Category.objects.create_category('Water')
-        Balance.objects.create_expense(
-                category=category,
-                amount=3,
-                date='05/24/2017',
-                balance=other_balance
-                )
-        category = Category.objects.create_category('School')
-        Balance.objects.create_expense(
-                category=category,
-                amount=10,
-                date='05/24/2017',
-                balance=other_balance
-                )
-
-        response = self.client.get(
-                f'/balance/{correct_balance.id}/expenses/'
-                )
-
-        self.assertContains(response, '24 May 2017 || Food: 10')
-        self.assertContains(response, '24 May 2017 || Movie: 20')
-        self.assertNotContains(response, '24 May 2017 || Water: 3')
-        self.assertNotContains(response, '24 May 2017 || School: 10')
 
     def test_balance_values_are_calculated_right(self):
-        balance = Balance()
-        balance.save()
+        balance = Balance.objects.get(owner=self.user)
         category = Category.objects.create_category('Salary')
         Balance.objects.create_income(
                 category=category,
@@ -194,17 +179,15 @@ class BalanceViewTest(TestCase):
         self.assertEqual(saved_balance.total_amount, 2700)
 
     def test_passes_correct_balance_to_template(self):
-        other_balance = Balance.objects.create()
-        correct_balance = Balance.objects.create()
-        response = self.client.get(f'/balance/{correct_balance.id}/')
+        correct_balance = Balance.objects.get(owner=self.user)
+        response = self.client.get(f'/balance/')
         self.assertEqual(response.context['balance'], correct_balance)
-        self.assertNotEqual(response.context['balance'], other_balance)
 
 
-class NewBalanceTest(TestCase):
+class NewBalanceTest(BaseTestCase):
 
     def test_can_save_a_POST_request(self):
-        self.client.post('/balance/new',  data={
+        self.client.post('/balance/income/',  data={
             'income_category': 'Salary',
             'income_amount': 1000,
             'income_date': '05/24/2017'
@@ -216,7 +199,7 @@ class NewBalanceTest(TestCase):
         self.assertEqual(new_income.date, date(2017, 5, 24))
 
     def test_can_save_account_balance_after_a_POST_request(self):
-        self.client.post('/balance/new',  data={
+        self.client.post('/balance/income/',  data={
             'income_category': 'Salary',
             'income_amount': 1000,
             'income_date': '05/24/2017'
@@ -228,27 +211,26 @@ class NewBalanceTest(TestCase):
         self.assertEqual(new_balance.total_expense, 0.00)
 
     def test_redirects_after_POST(self):
-        response = self.client.post('/balance/new', data={
+        response = self.client.post('/balance/income/', data={
             'income_category': 'Salary',
             'income_amount': 1000,
             'income_date': '05/24/2017'
             })
         self.assertEqual(response.status_code, 302)
-        new_balance = Balance.objects.first()
         self.assertRedirects(
                 response,
-                f'/balance/{new_balance.id}/income/'
+                f'/balance/income/'
                 )
 
 
-class NewIncomeTest(TestCase):
+class NewIncomeTest(BaseTestCase):
 
     def test_can_save_a_income_POST_request_to_an_existing_balance(self):
-        other_balance = Balance.objects.create()
-        correct_balance = Balance.objects.create()
+        print(self.user)
+        correct_balance = Balance.objects.get(owner=self.user)
 
         self.client.post(
-                f'/balance/{correct_balance.id}/income/',
+                f'/balance/income/',
                 data={
                     'income_category': 'Salary',
                     'income_amount': 1000,
@@ -262,31 +244,12 @@ class NewIncomeTest(TestCase):
         self.assertEqual(new_income.amount, 1000.00)
         self.assertEqual(new_income.date, date(2017, 5, 24))
         self.assertEqual(new_income.balance, correct_balance)
-        self.assertNotEqual(new_income.balance, other_balance)
-
-    def test_redirects_to_balance_view(self):
-        Balance.objects.create()
-        correct_balance = Balance.objects.create()
-
-        response = self.client.post(
-                f'/balance/{correct_balance.id}/income/',
-                data={
-                    'income_category': 'Salary',
-                    'income_amount': 500.00,
-                    'income_date': '05/24/2017'
-                }
-            )
-
-        self.assertRedirects(
-                response,
-                f'/balance/{correct_balance.id}/income/'
-                )
 
 
-class IncomesByDayView(TestCase):
+class IncomesByDayView(BaseTestCase):
 
     def test_incomes_daily_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         category = Category.objects.create_category('Food')
         Balance.objects.create_income(
                 category=category,
@@ -317,7 +280,7 @@ class IncomesByDayView(TestCase):
                 )
         today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
         response = self.client.get(
-                f'/balance/{balance.id}/income/{today_str}/'
+                f'/balance/income/{today_str}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(response, '|| Movie: 20')
@@ -325,7 +288,7 @@ class IncomesByDayView(TestCase):
         self.assertContains(response, '|| School: 10')
 
     def test_incomes_weekly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_week_day = datetime.today() - timedelta(days=7)
         prev_week_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=7), '%m/%d/%Y')
@@ -362,7 +325,7 @@ class IncomesByDayView(TestCase):
         start_week_str = datetime.strftime(start_week, '%Y-%m-%d')
         end_week_str = datetime.strftime(end_week, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/income/{start_week_str}/{end_week_str}/'
+            f'/balance/income/{start_week_str}/{end_week_str}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(response, '|| Movie: 20')
@@ -371,7 +334,7 @@ class IncomesByDayView(TestCase):
                 response, '|| School: 10')
 
     def test_income_monthly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_month_day = datetime.today() - timedelta(days=30)
         prev_month_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=30), '%m/%d/%Y')
@@ -398,14 +361,14 @@ class IncomesByDayView(TestCase):
                 prev_month_day.year, prev_month_day.month, monthdays[1])
         end_prev_m = datetime.strftime(end_month_date, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/income/m/{start_prev_m}/{end_prev_m}/'
+            f'/balance/income/m/{start_prev_m}/{end_prev_m}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
 
     def test_income_yearly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_year_day = datetime.today() - timedelta(days=365)
         prev_year_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=365), '%m/%d/%Y')
@@ -430,21 +393,20 @@ class IncomesByDayView(TestCase):
                 prev_year_day.year, 12, 31)
         end_prev_y = datetime.strftime(end_year_date, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/income/y/{start_prev_y}/{end_prev_y}/'
+            f'/balance/income/y/{start_prev_y}/{end_prev_y}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
 
 
-class NewExpenseTest(TestCase):
+class NewExpenseTest(BaseTestCase):
 
     def test_can_save_a_expense_POST_request_to_an_existing_balance(self):
-        other_balance = Balance.objects.create()
-        correct_balance = Balance.objects.create()
+        correct_balance = Balance.objects.get(owner=self.user)
 
         self.client.post(
-                f'/balance/{correct_balance.id}/expenses/',
+                f'/balance/expenses/',
                 data={
                     'expense_category': 'Food',
                     'expense_amount': 10,
@@ -461,31 +423,12 @@ class NewExpenseTest(TestCase):
                 date(2017, 5, 24)
         )
         self.assertEqual(new_expense.balance, correct_balance)
-        self.assertNotEqual(new_expense.balance, other_balance)
-
-    def test_redirects_to_balance_view(self):
-        Balance.objects.create()
-        correct_balance = Balance.objects.create()
-
-        response = self.client.post(
-                f'/balance/{correct_balance.id}/expenses/',
-                data={
-                    'expense_category': 'Food',
-                    'expense_amount': 10.00,
-                    'expense_date': '05/24/2017'
-                }
-            )
-
-        self.assertRedirects(
-                response,
-                f'/balance/{correct_balance.id}/expenses/'
-                )
 
 
-class ExpensesByDayView(TestCase):
+class ExpensesByDayView(BaseTestCase):
 
     def test_expenses_daily_view(self):
-        correct_balance = Balance.objects.create()
+        correct_balance = Balance.objects.get(owner=self.user)
         category = Category.objects.create_category('Food')
         Balance.objects.create_expense(
                 category=category,
@@ -516,7 +459,7 @@ class ExpensesByDayView(TestCase):
                 )
         today_str = datetime.strftime(datetime.today(), '%Y-%m-%d')
         response = self.client.get(
-                f'/balance/{correct_balance.id}/expenses/{today_str}/'
+                f'/balance/expenses/{today_str}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(response, '|| Movie: 20')
@@ -524,7 +467,7 @@ class ExpensesByDayView(TestCase):
         self.assertContains(response, '|| School: 10')
 
     def test_expenses_weekly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_week_day = datetime.today() - timedelta(days=7)
         prev_week_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=7), '%m/%d/%Y')
@@ -547,13 +490,13 @@ class ExpensesByDayView(TestCase):
         start_week_str = datetime.strftime(start_week, '%Y-%m-%d')
         end_week_str = datetime.strftime(end_week, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/expenses/{start_week_str}/{end_week_str}/'
+            f'/balance/expenses/{start_week_str}/{end_week_str}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(response, '|| Movie: 20')
 
     def test_expenses_monthly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_month_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=30), '%m/%d/%Y')
         prev_month_day = datetime.today() - timedelta(days=30)
@@ -580,14 +523,14 @@ class ExpensesByDayView(TestCase):
                 prev_month_day.year, prev_month_day.month, monthdays[1])
         end_prev_m = datetime.strftime(end_month_date, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/expenses/m/{start_prev_m}/{end_prev_m}/'
+            f'/balance/expenses/m/{start_prev_m}/{end_prev_m}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
                 response, '|| Movie: 20')
 
     def test_expenses_yearly_view(self):
-        balance = Balance.objects.create()
+        balance = Balance.objects.get(owner=self.user)
         prev_year_day = datetime.today() - timedelta(days=365)
         prev_year_day_str = datetime.strftime(
                 datetime.today() - timedelta(days=365), '%m/%d/%Y')
@@ -612,7 +555,7 @@ class ExpensesByDayView(TestCase):
                 prev_year_day.year, 12, 31)
         end_prev_y = datetime.strftime(end_year_date, '%Y-%m-%d')
         response = self.client.get(
-            f'/balance/{balance.id}/expenses/y/{start_prev_y}/{end_prev_y}/'
+            f'/balance/expenses/y/{start_prev_y}/{end_prev_y}/'
                 )
         self.assertContains(response, '|| Food: 10')
         self.assertContains(
