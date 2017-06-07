@@ -21,25 +21,8 @@ class CategoryManager(models.Manager):
         return category
 
 
-class BalanceQuerySet(models.QuerySet):
-
-    def get_incomes(self, balance_id):
-        return self.get(id=balance_id).incomes.all()
-
-    def get_expenses(self, balance_id):
-        return self.get(id=balance_id).expenses.all()
-
-
 class BalanceManager(models.Manager):
 
-    def get_queryset(self):
-        return BalanceQuerySet(self.model, using=self._db)
-
-    def get_incomes(self, balance_id):
-        return self.get_queryset().get_incomes(balance_id)
-
-    def get_expenses(self, balance_id):
-        return self.get_queryset().get_expenses(balance_id)
 
     def create_income(self, **kwargs):
         category = kwargs.get('category')

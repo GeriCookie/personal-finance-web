@@ -122,14 +122,16 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 time.sleep(0.5)
 
     def assert_if_text(self, element_id, text, timeout=10):
+        start_time = time.time()
         while True:
             try:
                 element = self.browser.find_element_by_id(element_id)
                 self.assertEqual(element.text, text)
                 return
-            except (StaleElementReferenceException) as e:
-                # print(e)
-                time.sleep(0.2)
+            except (AssertionError, StaleElementReferenceException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
                 
     def assert_not_if_text(self, element_id, text, timeout=10):
         while True:
@@ -1051,9 +1053,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "10.00"
                 )
-        prev_month_button = self.wait_for_element_on_page('id_prev_month')
+        prev_month_button = self.wait_for_click_on_button_with_id('id_prev_month')
         prev_month_button.click()
-        self.browser.implicitly_wait(2)
 
         monthdays = monthrange(
                 datetime.today().year, datetime.today().month - 1)
@@ -1278,11 +1279,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.init_force_login()
 
-        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
-        balance.click()
 
         # She notices the page title and header mentioned personal finance
-        self.assertIn('Personal Finance', self.browser.title)
 
         incomes = self.wait_for_click_on_button_with_id('id_incomes')
         incomes.click()
