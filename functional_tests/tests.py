@@ -9,7 +9,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException
 from calendar import monthrange
+from seleniumlogin import force_login
+from django.contrib.auth import get_user_model
 
+
+import uuid
 
 MAX_WAIT = 10
 
@@ -27,7 +31,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
         self.browser.quit()
 
     def get_random_user(self):
-        username = 'user-%d' % self.users_count
+        username = 'user-%s' % uuid.uuid4().__str__().replace('-', '')
+        # username = 'user-%d' % self.users_count
         self.users_count += 1
         password = '123456qw'
         return {
@@ -35,24 +40,28 @@ class NewVisitorTest(StaticLiveServerTestCase):
             'password': password,
         }
 
+    def init_force_login(self):
+        User = get_user_model()
+        random_user = self.get_random_user()
+        user = User.objects.create_user(username=random_user['username'],
+                password=random_user['password'])
+        force_login(user, self.browser, self.live_server_url)
+        self.browser.get('{}/accounts/signin/'.format(self.live_server_url))
+    
     def init_user(self):
         user = self.get_random_user()
         self.signup_user(user)
         self.signin_user(user)
 
     def signup_user(self, user):
-        btn_nav_users_toggle = 'btn-nav-users-toggle'
-
-        self.click_on_button_with_id(btn_nav_users_toggle)
-
         btn_nav_sign_up_id = 'btn-nav-sign-up'
         btn_sign_up_id = 'btn-sign-up'
         tb_username_id = 'tb-username'
         tb_password1_id = 'tb-password1'
         tb_password2_id = 'tb-password2'
 
-        # Register
-        self.click_on_button_with_id(btn_nav_sign_up_id)
+        btn1 = self.wait_for_click_on_button_with_id(btn_nav_sign_up_id)
+        btn1.click()
 
         tb_username = self.wait_for_element_on_page(tb_username_id)
         tb_password1 = self.wait_for_element_on_page(tb_password1_id)
@@ -61,46 +70,42 @@ class NewVisitorTest(StaticLiveServerTestCase):
         tb_password1.send_keys(user['password'])
         tb_password2.send_keys(user['password'])
 
-        self.click_on_button_with_id(btn_sign_up_id)
+        btn = self.wait_for_click_on_button_with_id(btn_sign_up_id)
+        btn.click()
 
     def signin_user(self, user):
-        btn_nav_users_toggle = 'btn-nav-users-toggle'
-
-        self.click_on_button_with_id(btn_nav_users_toggle)
-
         btn_nav_sign_in_id = 'btn-nav-sign-in'
         btn_sign_in_id = 'btn-sign-in'
         tb_username_id = 'tb-username2'
         tb_password_id = 'tb-password'
 
-        self.click_on_button_with_id(btn_nav_sign_in_id)
+        btn1 = self.wait_for_click_on_button_with_id(btn_nav_sign_in_id)
+        btn1.click()
 
         tb_username = self.wait_for_element_on_page(tb_username_id)
-        tb_password = self.browser.find_element_by_id(tb_password_id)
+        tb_password = self.wait_for_element_on_page(tb_password_id)
 
         tb_username.send_keys(user['username'])
         tb_password.send_keys(user['password'])
 
-        self.click_on_button_with_id(btn_sign_in_id)
+        btn = self.wait_for_click_on_button_with_id(btn_sign_in_id)
+        btn.click()
 
     def signout_user(self):
-        btn_nav_users_toggle = 'btn-nav-users-toggle'
+        btn_nav_sign_out_id = 'id-signout'
 
-        self.click_on_button_with_id(btn_nav_users_toggle)
+        btn = self.wait_for_click_on_button_with_id(btn_nav_sign_out_id)
+        btn.click()
 
-        btn_nav_sign_out_id = 'btn-nav-sign-out'
-
-        self.click_on_button_with_id(btn_nav_sign_out_id)
-
-    def click_on_button_with_id(self, id):
+    def wait_for_click_on_button_with_id(self, id):
         while True:
             try:
-                btn = self.wait_for_element_on_page(id)
-                if btn:
-                    btn.click()
-                return
-            except (StaleElementReferenceException) as e:
-                # print(e)
+                element = WebDriverWait(self.browser, 10).until(
+                    EC.element_to_be_clickable((By.ID, id))
+                )
+                if element:
+                    return element
+            except(StaleElementReferenceException, WebDriverException) as e:
                 time.sleep(0.2)
 
     def wait_for_li_in_ul(self, ul_id, row_text):
@@ -121,6 +126,16 @@ class NewVisitorTest(StaticLiveServerTestCase):
             try:
                 element = self.browser.find_element_by_id(element_id)
                 self.assertEqual(element.text, text)
+                return
+            except (StaleElementReferenceException) as e:
+                # print(e)
+                time.sleep(0.2)
+                
+    def assert_not_if_text(self, element_id, text, timeout=10):
+        while True:
+            try:
+                element = self.browser.find_element_by_id(element_id)
+                self.assertNotEqual(element.text, text)
                 return
             except (StaleElementReferenceException) as e:
                 # print(e)
@@ -151,16 +166,18 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Cookie has heard about a cool new online personal finance app.
         # She goes to check out its homepage
         self.browser.get(self.live_server_url)
-        self.init_user()
+        self.init_force_login()
 
-        self.click_on_button_with_id('btn-nav-balance')
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
 
         # She notices the page title and header mentioned personal finance
         self.assertIn('Personal Finance', self.browser.title)
 
-        self.click_on_button_with_id('id_incomes')
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         self.assertEqual(
@@ -222,7 +239,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_add_new_expense'
                 )
         add_expenses_button.click()
-        self.browser.implicitly_wait(2)
         # She is invited to enter her expenses amount and category
         expenses_inputbox = self.wait_for_element_on_page(
                 'id_new_expense_category'
@@ -248,13 +264,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         expenses_amountbox.send_keys(10)
         today = datetime.strftime(datetime.today(), '%m/%d/%Y')
         expenses_date.send_keys(today)
-        expenses_button = self.browser.find_element_by_id(
+        expenses_button = self.wait_for_click_on_button_with_id(
                 'id_new_expense_button'
                 )
         expenses_button.click()
-        self.browser.implicitly_wait(2)
         # "Food: 10", "Total expences: 10"
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
+        # self.browser.implicitly_wait(200)
         self.wait_for_li_in_ul(
                 'id_expenses_list',
                 f'{today_str} || Food: 10.00'
@@ -335,7 +351,17 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Cookie start a new balance
         self.browser.get(self.live_server_url)
 
-        income_inputbox = self.browser.find_element_by_id(
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -367,18 +393,30 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         # we use a new browser session to make sure that no information
         # of Cookie's is comming through from cookies etc
+        self.signout_user()
         self.browser.quit()
         self.browser = webdriver.Firefox()
 
         # Little Cookie visits the home page. There is no sign of Cookie's
         # balance
         self.browser.get(self.live_server_url)
-        page_text = self.browser.find_element_by_tag_name('body').text
-        self.assertNotIn('Salary: 1000', page_text)
+
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
+
+        self.assert_not_if_text('body', 'Salary: 1000')
 
         # Little Cookie starts a new balance by entering a new item.
 
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -405,21 +443,31 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # Little Cookie gets her own unique URL
         little_cookies_balance_url = self.browser.current_url
         self.assertRegex(little_cookies_balance_url, '/balance/.+')
-        self.assertNotEqual(little_cookies_balance_url, cookie_balance_url)
 
         # Again, there is no trace of Cookie's balance
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn(f'{today_str} || Salary: 1000', page_text)
         self.assertIn(f'{today_str} || Salary: 800', page_text)
+        self.signout_user()
 
     def test_layout_and_styling(self):
         # Cookie goes to the home page
         self.browser.get(self.live_server_url)
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         self.browser.set_window_size(1024, 768)
 
         # She notices the input box is nicely centered
-        category_inputbox = self.browser.find_element_by_id(
+        category_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         amount_inputbox = self.browser.find_element_by_id(
@@ -468,15 +516,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 512,
                 delta=10
                 )
+        self.signout_user()
 
     def test_user_check_expenses_on_daily_basis(self):
 
         self.browser.get(self.live_server_url)
 
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -649,15 +708,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_expenses_on_week_basis(self):
 
         self.browser.get(self.live_server_url)
 
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -820,15 +890,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_expenses_on_month_basis(self):
 
         self.browser.get(self.live_server_url)
 
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1000,15 +1081,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_expenses_on_year_basis(self):
 
         self.browser.get(self.live_server_url)
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
 
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1179,15 +1271,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "30.00"
                 )
+        self.signout_user()
 
     def test_user_check_incomes_on_daily_basis(self):
 
         self.browser.get(self.live_server_url)
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
 
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1356,15 +1459,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_income.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_incomes_on_week_basis(self):
 
         self.browser.get(self.live_server_url)
 
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1539,15 +1653,26 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_income.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_incomes_on_month_basis(self):
 
         self.browser.get(self.live_server_url)
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
 
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1766,15 +1891,27 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_income.text,
                 "20.00"
                 )
+        self.signout_user()
 
     def test_user_check_incomes_on_year_basis(self):
 
         self.browser.get(self.live_server_url)
 
+        self.init_force_login()
+
+        balance = self.wait_for_click_on_button_with_id('btn-nav-balance')
+        balance.click()
+
+        # She notices the page title and header mentioned personal finance
+        self.assertIn('Personal Finance', self.browser.title)
+
+        incomes = self.wait_for_click_on_button_with_id('id_incomes')
+        incomes.click()
+
         # She notices the page title and header mentioned personal finance
 
         # She is invited to enter her income amount and category straight away
-        income_inputbox = self.browser.find_element_by_id(
+        income_inputbox = self.wait_for_element_on_page(
                 'id_new_income_category'
                 )
         income_amountbox = self.browser.find_element_by_id(
@@ -1965,3 +2102,4 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "0.00"
                 )
+        self.signout_user()

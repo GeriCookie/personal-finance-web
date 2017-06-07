@@ -81,6 +81,7 @@ class BalanceManager(models.Manager):
                 balance.remaining_budget -= Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()
+        print(expense)
         return expense
 
     def create_savings_goal(self, **kwargs):
@@ -184,7 +185,7 @@ class BalanceManager(models.Manager):
         if savings_goal and budget:
             if savings_goal.completed and budget.completed:
                 balance.recommended_expenses_per_day = 0.00
-        if balance.expenses.first():
+        if balance.expenses.first() and balance.expenses.first().date != helper.today():
             balance.average_expenses_per_day = balance.expenses.total_amount()['total_amount'] / (
                 (helper.today() -
                     balance.expenses.aggregate(min_date=Min(F('date')))['min_date']).days)

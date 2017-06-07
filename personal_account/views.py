@@ -34,7 +34,7 @@ def income(request):
                 date=date,
                 balance=balance
         )
-        return redirect(f'/balance/{balance.id}/income/')
+        return redirect(f'/balance/income/')
     return render(request, 'income.html', {
             'balance': balance,
             'incomes': incomes,
@@ -105,7 +105,9 @@ def yearly_income(request, start_date, end_date):
 @login_required(login_url='/accounts/signin')
 def expenses(request):
     balance = request.user.balance
+    print(request.user)
     expenses = balance.expenses.all().select_related('category')
+    print(expenses)
     days = datehelper.days_income_expense_view()
     if request.method == 'POST':
         category_name = request.POST.get('expense_category', '')
@@ -118,7 +120,7 @@ def expenses(request):
                 date=date,
                 balance=balance
         )
-        return redirect(f'/balance/{balance.id}/expenses/')
+        return redirect(f'/balance/expenses/')
     return render(request, 'expenses.html', {
             'balance': balance,
             'expenses': expenses,

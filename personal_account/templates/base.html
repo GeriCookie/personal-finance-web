@@ -12,7 +12,7 @@
     <link href="/static/base.css" rel="stylesheet" />
 </head>
 
-<body>
+<body id="body">
     <div class="row">
         <div class="col-xs-12">
             <nav class="nav">
@@ -30,30 +30,23 @@
                     <li class="list-item">
                         <a href="/balance/expenses/">Expenses</a>
                     </li>
-                    <li class="list-item has-dropdown">
-                        {% if user.username %}
+                    {% if user.username %}
 
-                            <a id="btn-nav-users-toggle" class="dropdown-toggle" href="#">{{ user.username }}</a>
-                            <ul class="list list-dropdown hidden">
-                                <li class="list-item">
-                                    <a id="btn-nav-signout" href="/accounts/signout">Sign out</a>
-                                </li>
-                            </ul>
+                         <li class="list-item">
+                            <a id="id-signout" href="/accounts/signout">Sign out</a>
+                        </li>
 
-                        {% else %}
+                    {% else %}
 
-                            <a id="btn-nav-users-toggle" class="dropdown-toggle" href="#">User</a>
-                            <ul class="list list-dropdown hidden">
-                                <li class="list-item">
-                                    <a href="/accounts/signup" id="btn-nav-sign-up">Sign up</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="/accounts/signin" id="btn-nav-sign-in">Sign in</a>
-                                </li>
-                            </ul>
+                         <li class="list-item">
+                            <a href="/accounts/signup" id="btn-nav-sign-up">Sign up</a>
+                        </li>
+                        <li class="list-item">
+                            <a href="/accounts/signin"
+                                id="btn-nav-sign-in">Sign in</a>
+                        </li>
 
-                        {% endif %}
-                    </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>
