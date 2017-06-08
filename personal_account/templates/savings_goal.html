@@ -1,0 +1,30 @@
+{% extends 'base.html' %}       
+{% block header_text %}Your Savings Goal{% endblock %}
+{% block header2_text %}Enter savings goal{% endblock %}
+{% block content %}
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+{% if not savings_goal %}
+<form method="POST" action="/balance/savings-goal/" 
+            class="form-inline text-center">
+            <input name="savings_goal_amount" 
+                   id="id_new_savings_goal_amount" 
+                   class="form-control input-lg"
+                   type=number
+                   step=0.01 
+                   placeholder="amount" />
+            <input name="end_date"
+                   id="id_new_savings_goal_end_date"
+                   class="form-control input-lg"
+                   type=text
+                   placeholder="mm/dd/yyyy"/>
+            <input id="id_new_savings_goal_button" 
+                   class="btn btn-success"
+                   type="submit">
+            {% csrf_token %}
+        </form>
+        {% endif %}
+            <h3>
+                {{ savings_goal.end_date|date:"d M Y" }} || {{ savings_goal.amount }} : {{ savings_goal.completed }}
+            </h3>
+        <h1 class="text-center">Total savings: <span id="id_total_savings">{{ balance.total_savings }}</span></h1>
+{% endblock %}

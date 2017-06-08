@@ -39,4 +39,8 @@ urlpatterns = [
         r'^expenses/y/(?P<start_date>\d{4}-\d{2}-\d{2})/(?P<end_date>\d{4}-\d{2}-\d{2})/$',
         views.yearly_expenses,
         name='yearly_expenses'),
+    url(r'^budget/$', views.budget,
+        name='budget'),
+    url(r'^savings-goal/$', views.savings_goal,
+        name='savings-goal'),
 ]

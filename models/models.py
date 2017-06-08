@@ -23,7 +23,6 @@ class CategoryManager(models.Manager):
 
 class BalanceManager(models.Manager):
 
-
     def create_income(self, **kwargs):
         category = kwargs.get('category')
         amount = kwargs.get('amount')
@@ -60,7 +59,7 @@ class BalanceManager(models.Manager):
         balance.total_expense += Decimal(amount)
         budget = balance.budget.filter(completed=False).last()
         if budget:
-            if budget.date_created <= date:
+            if budget.date_created <= date.date():
                 balance.remaining_budget -= Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()

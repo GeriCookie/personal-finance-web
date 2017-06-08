@@ -183,3 +183,41 @@ def yearly_expenses(request, start_date, end_date):
         'days': days,
         'total_expenses': total_expenses
     })
+
+
+@login_required(login_url='/accounts/signin')
+def savings_goal(request):
+    balance = request.user.balance
+    savings_goal = balance.savings_goals.filter(completed=False).last()
+    if request.method == 'POST':
+        amount = request.POST.get('savings_goal_amount', '')
+        end_date = request.POST.get('end_date', '')
+        Balance.objects.create_savings_goal(
+                amount=amount,
+                end_date=end_date,
+                balance=balance
+        )
+        return redirect(f'/balance/savings-goal/')
+    return render(request, 'savings_goal.html', {
+            'balance': balance,
+            'savings_goal': savings_goal,
+            })
+
+
+@login_required(login_url='/accounts/signin')
+def budget(request):
+    balance = request.user.balance
+    budget = balance.budget.filter(completed=False).last()
+    if request.method == 'POST':
+        amount = request.POST.get('budget_amount', '')
+        end_date = request.POST.get('end_date', '')
+        Balance.objects.create_budget(
+                amount=amount,
+                end_date=end_date,
+                balance=balance
+        )
+        return redirect(f'/balance/budget/')
+    return render(request, 'budget.html', {
+            'balance': balance,
+            'budget': budget,
+            })

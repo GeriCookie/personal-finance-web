@@ -1,0 +1,31 @@
+{% extends 'base.html' %}       
+{% block header_text %}Your Budget{% endblock %}
+{% block header2_text %}Enter budget{% endblock %}
+{% block content %}
+<a href="/balance/" id="id_total_balance_button" class="btn btn-success">Go to Total Balance</a>
+{% if not budget %}
+<form method="POST" action="/balance/budget/" 
+            class="form-inline text-center">
+            <input name="budget_amount" 
+                   id="id_new_budget_amount" 
+                   class="form-control input-lg"
+                   type=number
+                   step=0.01 
+                   placeholder="amount" />
+            <input name="end_date"
+                   id="id_new_budget_date"
+                   class="form-control input-lg"
+                   type=text
+                   placeholder="mm/dd/yyyy"/>
+            <input id="id_new_budget_button" 
+                   class="btn btn-success"
+                   type="submit">
+            {% csrf_token %}
+        </form>
+{% endif %}
+            <h3>
+                {{ budget.end_date|date:"d M Y" }} || {{ budget.amount }}: {{ budget.completed }}
+            </h3>
+        <h1 class="text-center">Remaining budget: <span
+                id="id_remaining_budget">{{ balance.remaining_budget }}</span></h1>
+{% endblock %}
