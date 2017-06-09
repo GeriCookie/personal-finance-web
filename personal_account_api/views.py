@@ -1,30 +1,24 @@
 from models.models import Balance
-
 from .serializers import BalanceSerializer, IncomeSerializer,\
         IncomesByDatesSerializer, ExpensesByDatesSerializer,\
         ExpenseSerializer, SavingsGoalSerializer, BudgetSerializer
 from .filters import IncomesFilter, ExpensesFilter
 
-from rest_framework import generics, permissions
+from rest_framework import permissions
 from django.db.models import Sum
 from django_filters import rest_framework as filters
+from rest_framework import viewsets
 
 
-class BalanceList(generics.ListCreateAPIView):
-    queryset = Balance.objects.all()
+class BalanceViewSet(viewsets.ModelViewSet):
     serializer_class = BalanceSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-
-class BalanceDetail(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = BalanceSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get_object(self):
-        return self.request.user.balance
+    def get_queryset(self):
+        return Balance.objects.filter(owner=self.request.user)
 
 
-class IncomesList(generics.ListCreateAPIView):
+class IncomesViewSet(viewsets.ModelViewSet):
     serializer_class = IncomeSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -33,7 +27,7 @@ class IncomesList(generics.ListCreateAPIView):
         return incomes
 
 
-class IncomesListByDate(generics.ListAPIView):
+class IncomesByDateViewSet(viewsets.ModelViewSet):
     serializer_class = IncomesByDatesSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = IncomesFilter
@@ -45,7 +39,7 @@ class IncomesListByDate(generics.ListAPIView):
         return incomes
 
 
-class ExpensesList(generics.ListCreateAPIView):
+class ExpensesViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -54,7 +48,7 @@ class ExpensesList(generics.ListCreateAPIView):
         return expenses
 
 
-class ExpensesListByDate(generics.ListAPIView):
+class ExpensesByDateViewSet(viewsets.ModelViewSet):
     serializer_class = ExpensesByDatesSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_class = ExpensesFilter
@@ -66,7 +60,7 @@ class ExpensesListByDate(generics.ListAPIView):
         return expenses
 
 
-class SavingsGoalList(generics.ListCreateAPIView):
+class SavingsGoalViewSet(viewsets.ModelViewSet):
     serializer_class = SavingsGoalSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -75,7 +69,7 @@ class SavingsGoalList(generics.ListCreateAPIView):
         return savings_goals
 
 
-class BudgetList(generics.ListCreateAPIView):
+class BudgetViewSet(viewsets.ModelViewSet):
     serializer_class = BudgetSerializer
     permission_classes = (permissions.IsAuthenticated,)
 

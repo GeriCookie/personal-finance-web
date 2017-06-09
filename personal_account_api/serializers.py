@@ -18,7 +18,7 @@ class CategorySerializer(serializers.Serializer):
 class IncomeSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
 
-    class meta:
+    class Meta:
         model = Income
         fields = ('id', 'category', 'amount', 'date')
 
