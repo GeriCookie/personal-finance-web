@@ -11,7 +11,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from calendar import monthrange
 from seleniumlogin import force_login
 from django.contrib.auth import get_user_model
-
+# from utils import datehelper
 
 import uuid
 
@@ -43,53 +43,11 @@ class NewVisitorTest(StaticLiveServerTestCase):
     def init_force_login(self):
         User = get_user_model()
         random_user = self.get_random_user()
-        user = User.objects.create_user(username=random_user['username'],
+        user = User.objects.create_user(
+                username=random_user['username'],
                 password=random_user['password'])
         force_login(user, self.browser, self.live_server_url)
         self.browser.get('{}/accounts/signin/'.format(self.live_server_url))
-    
-    def init_user(self):
-        user = self.get_random_user()
-        self.signup_user(user)
-        self.signin_user(user)
-
-    def signup_user(self, user):
-        btn_nav_sign_up_id = 'btn-nav-sign-up'
-        btn_sign_up_id = 'btn-sign-up'
-        tb_username_id = 'tb-username'
-        tb_password1_id = 'tb-password1'
-        tb_password2_id = 'tb-password2'
-
-        btn1 = self.wait_for_click_on_button_with_id(btn_nav_sign_up_id)
-        btn1.click()
-
-        tb_username = self.wait_for_element_on_page(tb_username_id)
-        tb_password1 = self.wait_for_element_on_page(tb_password1_id)
-        tb_password2 = self.wait_for_element_on_page(tb_password2_id)
-        tb_username.send_keys(user['username'])
-        tb_password1.send_keys(user['password'])
-        tb_password2.send_keys(user['password'])
-
-        btn = self.wait_for_click_on_button_with_id(btn_sign_up_id)
-        btn.click()
-
-    def signin_user(self, user):
-        btn_nav_sign_in_id = 'btn-nav-sign-in'
-        btn_sign_in_id = 'btn-sign-in'
-        tb_username_id = 'tb-username2'
-        tb_password_id = 'tb-password'
-
-        btn1 = self.wait_for_click_on_button_with_id(btn_nav_sign_in_id)
-        btn1.click()
-
-        tb_username = self.wait_for_element_on_page(tb_username_id)
-        tb_password = self.wait_for_element_on_page(tb_password_id)
-
-        tb_username.send_keys(user['username'])
-        tb_password.send_keys(user['password'])
-
-        btn = self.wait_for_click_on_button_with_id(btn_sign_in_id)
-        btn.click()
 
     def signout_user(self):
         btn_nav_sign_out_id = 'id-signout'
@@ -132,7 +90,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
-                
+
     def assert_not_if_text(self, element_id, text, timeout=10):
         while True:
             try:
@@ -186,7 +144,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 income_inputbox.get_attribute('placeholder'),
                 'Enter income category'
                 )
-        income_amountbox = self.browser.find_element_by_id(
+        income_amountbox = self.wait_for_element_on_page(
                 'id_new_income_amount'
                 )
 
@@ -194,7 +152,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 income_amountbox.get_attribute('placeholder'),
                 "amount"
                 )
-        income_date = self.browser.find_element_by_id('id_new_income_date')
+        income_date = self.wait_for_element_on_page('id_new_income_date')
         # She types "Salary" and 1000 into a text box
         income_inputbox.send_keys('Salary')
         income_amountbox.send_keys(1000)
@@ -202,42 +160,42 @@ class NewVisitorTest(StaticLiveServerTestCase):
         income_date.send_keys(today)
         # When she hits the "Add income" button, the page updates,
         # and now the page lists:
-        income_button = self.browser.find_element_by_id('id_new_income_button')
+        income_button = self.wait_for_click_on_button_with_id(
+                'id_new_income_button')
         income_button.click()
-        self.browser.implicitly_wait(2)
         # "Salary: 1000"
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
         self.wait_for_li_in_ul(
                     'id_income_list',
-                    f'{today_str} || Salary: 1000.00'
+                    '{} || Salary: 1000.00'.format(today_str)
         )
 
         # She sees a button that tells her "Go to total balance"
-        total_balance_button = self.browser.find_element_by_id(
+        total_balance_button = self.wait_for_click_on_button_with_id(
                 'id_total_balance_button'
                 )
 
         # She click it and the page is changed to Total balance page:
         total_balance_button.click()
-        self.browser.implicitly_wait(2)
         total_balance = self.wait_for_element_on_page('id_total_balance')
         self.assertEqual(
                 total_balance.text,
                 '1000.00'
                 )
-        total_income = self.browser.find_element_by_id('id_total_income')
+        total_income = self.wait_for_element_on_page('id_total_income')
         self.assertEqual(
                 total_income.text,
                 '1000.00'
                 )
         # She sees that her total expenses are 0.00
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        total_expenses = self.wait_for_element_on_page_text(
+                'id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 '0.00'
                 )
         # She sees the Add new expense button and click it:
-        add_expenses_button = self.browser.find_element_by_id(
+        add_expenses_button = self.wait_for_click_on_button_with_id(
                 'id_add_new_expense'
                 )
         add_expenses_button.click()
@@ -251,14 +209,14 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'Enter a expense category'
                 )
 
-        expenses_amountbox = self.browser.find_element_by_id(
+        expenses_amountbox = self.wait_for_element_on_page(
                 'id_new_expense_amount'
                 )
         self.assertEqual(
                 expenses_amountbox.get_attribute('placeholder'),
                 "amount"
                 )
-        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+        expenses_date = self.wait_for_element_on_page('id_new_expense_date')
 
         # When she hits the "Add expense" button, the page updates
         # and now the page lists:
@@ -275,9 +233,10 @@ class NewVisitorTest(StaticLiveServerTestCase):
         # self.browser.implicitly_wait(200)
         self.wait_for_li_in_ul(
                 'id_expenses_list',
-                f'{today_str} || Food: 10.00'
+                '{} || Food: 10.00'.format(today_str)
         )
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        total_expenses = self.wait_for_element_on_page_text(
+                'id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "10.00"
@@ -290,42 +249,40 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 'id_new_expense_category'
                 )
 
-        expenses_amountbox = self.browser.find_element_by_id(
+        expenses_amountbox = self.wait_for_element_on_page(
                 'id_new_expense_amount'
                 )
-        expenses_date = self.browser.find_element_by_id('id_new_expense_date')
+        expenses_date = self.wait_for_element_on_page('id_new_expense_date')
         expenses_inputbox.send_keys("Movie")
         expenses_amountbox.send_keys(20)
         yesterday = datetime.strftime(
                     datetime.today() - timedelta(days=1), '%m/%d/%Y'
         )
         expenses_date.send_keys(yesterday)
-        expenses_button = self.browser.find_element_by_id(
+        expenses_button = self.wait_for_click_on_button_with_id(
                 'id_new_expense_button'
                 )
         expenses_button.click()
-        self.browser.implicitly_wait(2)
         # The page updates again, and now shows both expenses,
         today_str = datetime.strftime(datetime.today(), '%d %b %Y')
         self.wait_for_li_in_ul(
                 'id_expenses_list',
-                f'{today_str} || Food: 10.00'
+                '{} || Food: 10.00'.format(today_str)
         )
         yesterday_str = datetime.strftime(
                 datetime.today() - timedelta(days=1), '%d %b %Y'
         )
         self.wait_for_li_in_ul(
                 'id_expenses_list',
-                f'{yesterday_str} || Movie: 20.00')
+                '{} || Movie: 20.00'.format(yesterday_str))
 
         # She sees a button that tells her "Go to total balance"
-        total_balance_button = self.browser.find_element_by_id(
+        total_balance_button = self.wait_for_click_on_button_with_id(
                 'id_total_balance_button'
                 )
 
         # She click it and the page is changed to Total balance page:
         total_balance_button.click()
-        self.browser.implicitly_wait(2)
         total_balance = self.wait_for_element_on_page('id_total_balance')
         # Total expenses: 30, and Account balance: 970
         self.assertEqual(
@@ -333,7 +290,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 "970.00"
                 )
 
-        total_expenses = self.browser.find_element_by_id('id_total_expenses')
+        total_expenses = self.wait_for_element_on_page('id_total_expenses')
         self.assertEqual(
                 total_expenses.text,
                 "30.00"
@@ -1053,7 +1010,8 @@ class NewVisitorTest(StaticLiveServerTestCase):
                 total_expenses.text,
                 "10.00"
                 )
-        prev_month_button = self.wait_for_click_on_button_with_id('id_prev_month')
+        prev_month_button = self.wait_for_click_on_button_with_id(
+                'id_prev_month')
         prev_month_button.click()
 
         monthdays = monthrange(
@@ -1278,7 +1236,6 @@ class NewVisitorTest(StaticLiveServerTestCase):
 
         self.browser.get(self.live_server_url)
         self.init_force_login()
-
 
         # She notices the page title and header mentioned personal finance
 

@@ -146,15 +146,20 @@ REST_FRAMEWORK = {
             'rest_framework.filters.DjangoFilterBackend',
             'rest_framework.filters.SearchFilter'),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework.authentication.SessionAuthentication',
             'rest_framework.authentication.TokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
             )
             
         }
 
+#AUTHENTICATION_BACKENDS = (
+    # `allauth` specific authentication methods, such as login by e-mail
+ #   'allauth.account.auth_backends.AuthenticationBackend',
+#)
+
 LOGIN_REDIRECT_URL = '/'
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, '../static'))
 try:
