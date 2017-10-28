@@ -1,7 +1,9 @@
-from models.models import Balance
+from models.models import Balance, Category
 from .serializers import BalanceSerializer, IncomeSerializer,\
         IncomesByDatesSerializer, ExpensesByDatesSerializer,\
-        ExpenseSerializer, SavingsGoalSerializer, BudgetSerializer
+        ExpenseSerializer, SavingsGoalSerializer, BudgetSerializer,\
+        CategorySerializer
+
 from .filters import IncomesFilter, ExpensesFilter
 
 from rest_framework import permissions
@@ -16,6 +18,15 @@ class BalanceViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Balance.objects.filter(owner=self.request.user)
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        categories = Category.objects.all()
+        return categories
 
 
 class IncomesViewSet(viewsets.ModelViewSet):
@@ -56,7 +67,8 @@ class ExpensesByDateViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         expenses = self.request.user.balance.expenses.values(
-                'category__name').annotate(amount_per_category=Sum('amount'))
+                'category__name',
+                'category__color').annotate(amount_per_category=Sum('amount'))
         return expenses
 
 

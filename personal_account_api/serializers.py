@@ -6,12 +6,18 @@ from models.models import Balance, Income, Expense, \
 
 class CategorySerializer(serializers.Serializer):
     name = serializers.CharField(max_length=500)
+    color = serializers.CharField(max_length=500)
 
     def create(self, validated_data):
         category_name = validated_data.pop('name')
+        category_color = validated_data.pop('color')
         category = Category.objects.filter(name=category_name).first()
         if not category:
-            category = Category.objects.create(name=category_name)
+            category = Category.objects.create(name=category_name,
+                    color=category_color)
+        else:
+            category.color = category_color
+            category.save()
         return category
 
 
@@ -26,7 +32,11 @@ class IncomeSerializer(serializers.ModelSerializer):
         category_data = validated_data.pop('category')
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
-            category = Category.objects.create(name=category_data['name'])
+            category = Category.objects.create(name=category_data['name'],
+                    color=category_data['color'])
+        else:
+            category.color = category_data['color']
+            category.save()
         balance = self.context['request'].user.balance
         income = Balance.objects.create_income(
                 category=category, balance=balance, **validated_data)
@@ -40,7 +50,9 @@ class IncomesByDatesSerializer(serializers.Serializer):
 
 class ExpensesByDatesSerializer(serializers.Serializer):
     category__name = serializers.ReadOnlyField()
+    category__color = serializers.ReadOnlyField()
     amount_per_category = serializers.ReadOnlyField()
+
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
@@ -54,7 +66,11 @@ class ExpenseSerializer(serializers.ModelSerializer):
         category_data = validated_data.pop('category')
         category = Category.objects.filter(name=category_data['name']).first()
         if not category:
-            category = Category.objects.create(name=category_data['name'])
+            category = Category.objects.create(name=category_data['name'],
+                    color=category_data['color'])
+        else:
+            category.color = category_data['color']
+            category.save()
         balance = self.context['request'].user.balance
         expense = Balance.objects.create_expense(
                 category=category, balance=balance, **validated_data)

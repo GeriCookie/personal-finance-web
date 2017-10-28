@@ -21,7 +21,10 @@ router.register(
         r'incomes-by-date',
         views.IncomesByDateViewSet,
         base_name='incomes-by-date')
-
+router.register(
+        r'categories',
+        views.CategoryViewSet,
+        base_name='categories')
 
 urlpatterns = [
             url(r'^', include(router.urls)),

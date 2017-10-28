@@ -59,7 +59,7 @@ class BalanceManager(models.Manager):
         balance.total_expense += Decimal(amount)
         budget = balance.budget.filter(completed=False).last()
         if budget:
-            if budget.date_created <= date.date():
+            if budget.date_created <= helper.today():
                 balance.remaining_budget -= Decimal(amount)
         self.calculate_balance_values(balance)
         balance.save()
@@ -263,7 +263,7 @@ class Category(models.Model):
         app_label = 'personal_finance'
 
     name = models.CharField(max_length=300, unique=True)
-
+    color = models.CharField(max_length=500)
     objects = CategoryManager()
 
 
