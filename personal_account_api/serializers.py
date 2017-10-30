@@ -45,6 +45,7 @@ class IncomeSerializer(serializers.ModelSerializer):
 
 class IncomesByDatesSerializer(serializers.Serializer):
     category__name = serializers.ReadOnlyField()
+    category__color = serializers.ReadOnlyField()
     amount_per_category = serializers.ReadOnlyField()
 
 

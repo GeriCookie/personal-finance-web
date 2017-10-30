@@ -46,7 +46,7 @@ class IncomesByDateViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         incomes = self.request.user.balance.incomes.values(
-                'category__name').annotate(amount_per_category=Sum('amount'))
+                'category__name', 'category__color').annotate(amount_per_category=Sum('amount'))
         return incomes
 
 
