@@ -158,7 +158,8 @@ class BalanceManager(models.Manager):
                     budget.completed = True
             else:
                 balance.recommended_expenses_per_day = (
-                    balance.remaining_budget / (budget.end_date - helper.today().days))
+                    balance.remaining_budget / (budget.end_date -
+                        helper.today()).days)
 
         balance.total_amount = balance.total_income - (
                 balance.total_expense -
