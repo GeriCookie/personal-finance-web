@@ -2,10 +2,10 @@ from fabric.contrib.files import append, exists, sed
 from fabric.api import env, hosts, local, run
 import random
 
-REPO_URL = 'https://GCookie@bitbucket.org/GCookie/personal-finance-web.git'
+REPO_URL = 'https://github.com/GeriCookie/personal-finance-web.git'
 env.user = "ubuntu"
 env.key_filename = ["/Users/Cookie/Desktop/COOKIE.pem"]
-env.hosts = ["ec2-52-30-158-15.eu-west-1.compute.amazonaws.com",
+env.hosts = ["ec2-52-19-30-160.eu-west-1.compute.amazonaws.com"
              "ec2-34-251-86-69.eu-west-1.compute.amazonaws.com"]
 
 

@@ -105,7 +105,7 @@ class BalanceManager(models.Manager):
             days_by_end_goal_date = savings_goal.end_date - helper.today()
             if savings_goal.end_date < budget.end_date:
                 if savings_goal.end_date == helper.today():
-                    if balance.remaining_budget > savings_goal:
+                    if balance.remaining_budget > savings_goal.amount:
                         balance.remaining_budget - savings_goal.amount
                         balance.total_savings += savings_goal.amount
                         savings_goal.completed = True
